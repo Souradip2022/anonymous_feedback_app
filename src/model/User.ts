@@ -17,6 +17,19 @@ const MessageSchema: Schema<Message> = new Schema({
   }
 });
 
+const passwordValidator = {
+  validator: function (value: string) {
+    const hasUppercase = /[A-Z]/.test(value);
+
+    const hasLowercase = /[a-z]/.test(value);
+
+    const hasSpecialChar = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(value);
+
+    return hasUppercase && hasLowercase && hasSpecialChar;
+  },
+  message: (props: any) => `${props.value} does not meet the password criteria`,
+};
+
 export interface User extends Document {
   username: string;
   email: string;
@@ -44,7 +57,8 @@ const UserSchema: Schema<User> = new Schema({
   },
   password: {
     type: String,
-    required: [true, "Password is required"]
+    required: [true, "Password is required"],
+    validate: passwordValidator,
   },
   verifyCode: {
     type: String,
