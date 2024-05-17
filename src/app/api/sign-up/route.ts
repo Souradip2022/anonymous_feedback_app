@@ -4,7 +4,7 @@ import {sendVerificationEmail} from "@/helper/sendVerificationEmail";
 import bcrypt from "bcryptjs"
 import {ApiResponseHandler} from "@/utils/ApiResponseHandler";
 
-export async function POST(request: Request): Promise<Response> {
+export async function POST(request: Request) {
   await dbConnect();
 
   try {
@@ -29,8 +29,8 @@ export async function POST(request: Request): Promise<Response> {
     const existingUserByEmail = await User.findOne({email});
     let verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
 
-    if (existingUsername) {
-      if (existingUsername.isVerified) {
+    if (existingUserByEmail) {
+      if (existingUserByEmail.isVerified) {
         return Response.json(
           new ApiResponseHandler(400, {}, "User already exists with this mail")
         )
@@ -62,8 +62,8 @@ export async function POST(request: Request): Promise<Response> {
 
     const emailResponse = await sendVerificationEmail(email, username, verifyCode);
 
-    if(!emailResponse.success){
-      return  Response.json(
+    if (!emailResponse.success) {
+      return Response.json(
         new ApiResponseHandler(500, {}, `Sending email failed ${emailResponse.message}`)
       )
     }
