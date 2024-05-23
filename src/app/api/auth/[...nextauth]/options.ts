@@ -1,4 +1,4 @@
-import {NextAuthOptions, Session} from "next-auth";
+import {NextAuthOptions, Session, User} from "next-auth";
 import {CredentialsProvider} from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import {dbConnect} from "@/lib/dbConnect";
@@ -7,7 +7,7 @@ import {JWT} from "next-auth/jwt";
 
 const authOptions: NextAuthOptions = {
   providers: [
-    CredentialsProvider<CredentialsProvider>({
+    CredentialsProvider({
       name: "Credentials",
       id: "Credentials",
       credentials: {
@@ -46,35 +46,30 @@ const authOptions: NextAuthOptions = {
     })
   ],
   callbacks: {
-    async jwt({token, user}) :Promise<JWT>{
+    async jwt({token, user}: { token: JWT; user: User }): Promise<JWT> {
       if (user) {
-        token._id = user._id?.toString();
-        token.username = user.username
+        token._id = user._id?.toString(); // Convert ObjectId to string
         token.isVerified = user.isVerified;
-        token.isAcceptingMessage = user.isAcceptingMessage;
+        token.isAcceptingMessages = user.isAcceptingMessages;
+        token.username = user.username;
       }
-
       return token;
     },
-    async session({token, session}):Promise<Session>{
-      if(token){
-        session._id = token._id;
-        session.username = token.username;
-        session.isVerified = token.isVerified;
-        session.isAcceptingMessages = token.isAcceptingMessages;
+    async session({session, token}: { session: Session; token: JWT }): Promise<Session> {
+      if (token) {
+        session.user._id = token._id;
+        session.user.isVerified = token.isVerified;
+        session.user.isAcceptingMessages = token.isAcceptingMessages;
+        session.user.username = token.username;
       }
-
       return session;
     },
-    session: {
-      strategy: 'jwt',
-    },
-    secret: process.env.NEXTAUTH_SECRET,
-    pages: {
-      signIn: "/sign-in",
+  },
+  session: {
+    strategy: "jwt"
+  },
+  secret: process.env.NEXTAUTH_SRCRET;
 
-    }
-  }
-}
+};
 
 export {authOptions};
