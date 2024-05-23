@@ -1,5 +1,5 @@
 import {dbConnect} from "@/lib/dbConnect";
-import {User} from "@/model/User";
+import {UserModel} from "@/model/UserModel";
 import {sendVerificationEmail} from "@/helper/sendVerificationEmail";
 import bcrypt from "bcryptjs"
 import {ApiResponseHandler} from "@/utils/ApiResponseHandler";
@@ -14,7 +14,7 @@ export async function POST(request: Request) {
       throw new Error("All fields required !!");
     }
 
-    const existingUsername = await User.findOne({
+    const existingUsername = await UserModel.findOne({
       username,
       isVerified: true
     })
@@ -26,7 +26,7 @@ export async function POST(request: Request) {
       )
     }
 
-    const existingUserByEmail = await User.findOne({email});
+    const existingUserByEmail = await UserModel.findOne({email});
     let verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
 
     if (existingUserByEmail) {
@@ -47,7 +47,7 @@ export async function POST(request: Request) {
       const expiryDate = new Date();
       expiryDate.setHours(expiryDate.getHours() + 1);
 
-      const newUser = new User({
+      const newUser = new UserModel({
         username,
         password: hashedPassword,
         verifyCode,
