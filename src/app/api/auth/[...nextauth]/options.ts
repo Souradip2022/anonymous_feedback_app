@@ -7,7 +7,7 @@ import {JWT} from "next-auth/jwt";
 
 const authOptions: NextAuthOptions = {
   providers: [
-    CredentialsProvider({
+    CredentialsProvider<CredentialsProvider>({
       name: "Credentials",
       id: "Credentials",
       credentials: {
@@ -68,7 +68,7 @@ const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt"
   },
-  secret: process.env.NEXTAUTH_SRCRET;
+  secret: process.env.NEXTAUTH_SRCRET,
 
 };
 
