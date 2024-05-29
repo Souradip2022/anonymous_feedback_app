@@ -5,7 +5,7 @@ export {default} from "next-auth/middleware"
 
 // See "Matching Paths" below to learn more
 export const config = {
-  matcher: ["/sign-in.tsx", "/sign-up", "dashboard?:path*", "/", "verify/:path*"],
+  matcher: ["/sign-in.tsx", "/sign-up", "/",],
 }
 
 // This function can be marked `async` if using `await` inside
@@ -21,12 +21,12 @@ export async function middleware(req: NextRequest) {
     url.pathname.startsWith("/verify") ||
     url.pathname === "/"
   ) {
-    return NextResponse.redirect(new URL("/dashboard", req.nextUrl))
+    return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
 
   if (!token && url.pathname.startsWith("/dashboard")) {
-    return NextResponse.redirect(new URL("/sign-in.tsx", req.url))
+    return NextResponse.redirect(new URL("/sign-in", req.url))
   }
 
   return NextResponse.next();
