@@ -7,7 +7,7 @@ const UserQuerySchema = z.object({
   username: usernameValidation
 })
 
-export async function GET(request: Request) {
+export async function GET(request: Request): Promise<any> {
   await dbConnect();
 
   try {
@@ -17,6 +17,7 @@ export async function GET(request: Request) {
     }
 
     const result = UserQuerySchema.safeParse(queryParams);
+    console.log(result.error?.format());
 
     if (!result.success) {
       const usernameErrors = result.error.format().username?._errors || [];
@@ -40,9 +41,10 @@ export async function GET(request: Request) {
 
     if (existingVerifiedUser) {
       return Response.json({
-        success: false,
-        message: "Username already taken"
-      });
+          success: false,
+          message: "Username already taken"
+        },
+        {status: 400});
     }
 
     if (!existingVerifiedUser) {
@@ -60,7 +62,8 @@ export async function GET(request: Request) {
       {
         success: false,
         message: "Error checking username"
-      }
+      },
+      {status: 400}
     )
   }
 }

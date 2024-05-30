@@ -4,7 +4,7 @@ import {sendVerificationEmail} from "@/helper/sendVerificationEmail";
 import bcrypt from "bcryptjs"
 import {ApiResponseHandler} from "@/utils/ApiResponseHandler";
 
-export async function POST(request: Request) {
+export async function POST(request: Request): Promise<any> {
   await dbConnect();
 
   try {
@@ -27,6 +27,7 @@ export async function POST(request: Request) {
     }
 
     const existingUserByEmail = await UserModel.findOne({email});
+    // console.log(existingUserByEmail);
     let verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
 
     if (existingUserByEmail) {
@@ -41,6 +42,10 @@ export async function POST(request: Request) {
         existingUserByEmail.verifyCode = verifyCode;
         existingUserByEmail.verifyCodeExpiry = new Date(Date.now() + 3600000);
         await existingUserByEmail.save();
+
+        return Response.json(
+          new ApiResponseHandler(200, {}, "User exist but not verified")
+        );
       }
     } else {
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -50,6 +55,7 @@ export async function POST(request: Request) {
       const newUser = new UserModel({
         username,
         password: hashedPassword,
+        email,
         verifyCode,
         verifyCodeExpiry: expiryDate,
         isVerified: false,
@@ -60,16 +66,20 @@ export async function POST(request: Request) {
       await newUser.save();
     }
 
-    const emailResponse = await sendVerificationEmail(email, username, verifyCode);
+    /*const emailResponse = await sendVerificationEmail(email, username, verifyCode);
 
     if (!emailResponse.success) {
       return Response.json(
         new ApiResponseHandler(500, {}, `Sending email failed ${emailResponse.message}`)
       )
-    }
+    }*/
 
     return Response.json(
-      new ApiResponseHandler(201, {}, `Email successfully send`)
+      {
+        success: true,
+        message: "User created"
+      },
+      {status: 200}
     )
 
   } catch (error) {
