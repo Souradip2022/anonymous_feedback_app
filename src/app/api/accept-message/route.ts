@@ -6,7 +6,7 @@ import {authOptions} from "@/app/api/auth/[...nextauth]/options";
 import {AcceptMessageSchema} from "@/schema/acceptMessageSchema";
 import {ApiResponseHandler} from "@/utils/ApiResponseHandler";
 
-async function POST(request: Request): Promise<Response> {
+export async function POST(request: Request): Promise<Response> {
   await dbConnect();
 
   try {
@@ -57,7 +57,7 @@ async function POST(request: Request): Promise<Response> {
 }
 
 
-async function GET(request: Request): Promise<Response> {
+export async function GET(request: Request): Promise<Response> {
   await dbConnect();
 
   try {

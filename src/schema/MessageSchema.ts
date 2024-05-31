@@ -1,6 +1,6 @@
 import {z} from "zod";
 
-export const messageSchema: z.ZodObject<{}> = z.object({
+export const MessageSchema: z.ZodObject<{}> = z.object({
   content: z
   .string()
   .min(10, {message: "Content must be at least 10 characters"})

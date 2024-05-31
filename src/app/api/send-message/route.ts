@@ -2,12 +2,24 @@ import {dbConnect} from "@/lib/dbConnect";
 import {Message} from "@/model/UserModel";
 import {ApiResponseHandler} from "@/utils/ApiResponseHandler";
 import {UserModel} from "@/model/UserModel";
+import {MessageSchema} from "@/schema/MessageSchema";
 
-async function POST(request: Request): Promise<Response> {
+export async function POST(request: Request): Promise<Response> {
   await dbConnect();
 
   try {
     const {username, content} = await request.json();
+
+    const verifyContent = {
+      content
+    }
+
+    const result = MessageSchema.safeParse(verifyContent);
+
+    if(!result.success){
+      const error = result.error.format().content?._errors;
+
+    }
 
     const user = await UserModel.findOne({username});
 
