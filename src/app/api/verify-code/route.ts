@@ -2,7 +2,7 @@ import {VerifyCodeSchema} from "@/schema/VerifyCodeSchema";
 import {dbConnect} from "@/lib/dbConnect";
 import {UserModel} from "@/model/UserModel";
 
-export async function POST(request: Request): Promise<any> {
+export async function POST(request: Request): Promise<Response> {
   await dbConnect();
 
   try {
@@ -68,7 +68,7 @@ export async function POST(request: Request): Promise<any> {
         success: false,
         message: "Error verifying user"
       },
-      {status: 400}
+      {status: 500}
     )
   }
 }

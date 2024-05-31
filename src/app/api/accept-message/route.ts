@@ -3,6 +3,7 @@ import {UserModel} from "@/model/UserModel";
 import {getServerSession, Session} from "next-auth";
 import {User} from "next-auth";
 import {authOptions} from "@/app/api/auth/[...nextauth]/options";
+import {AcceptMessageSchema} from "@/schema/acceptMessageSchema";
 
 async function POST(request: Request): Promise<Response> {
   await dbConnect();
@@ -54,3 +55,45 @@ async function POST(request: Request): Promise<Response> {
 }
 
 
+async function GET(request: Request): Promise<Response> {
+  await dbConnect();
+
+  try {
+    const session = await getServerSession(authOptions);
+
+    const user = session?.user as User;
+
+    if (!session || !session.user) {
+      return Response.json(
+        {
+          success: false,
+          message: "User not authenticated"
+        },
+        {status: 401}
+      )
+    }
+
+    const foundUser = await UserModel.findById(user._id);
+    if (!foundUser) {
+      return Response.json({
+          success: false,
+          message: "User not found"
+        },
+        {status: 404})
+    } else {
+      return Response.json({
+        success: true,
+        userAcceptingMessage: foundUser.isAcceptingMessage
+      })
+    }
+
+  } catch (error: any) {
+    console.log("Error retrieving message accepting status ", error);
+
+    return Response.json({
+        success: false,
+        message: "Error retrieving message accepting status"
+      },
+      {status: 500})
+  }
+}
