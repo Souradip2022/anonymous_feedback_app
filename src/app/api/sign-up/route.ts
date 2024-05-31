@@ -4,7 +4,7 @@ import {sendVerificationEmail} from "@/helper/sendVerificationEmail";
 import bcrypt from "bcryptjs"
 import {ApiResponseHandler} from "@/utils/ApiResponseHandler";
 
-export async function POST(request: Request): Promise<any> {
+export async function POST(request: Request): Promise<Response> {
   await dbConnect();
 
   try {
@@ -22,7 +22,8 @@ export async function POST(request: Request): Promise<any> {
     if (existingUsername) {
       return Response
       .json(
-        new ApiResponseHandler(401, {}, "Username already exists")
+        new ApiResponseHandler(false, "Username already exists", {}),
+        {status: 403}
       )
     }
 
@@ -33,7 +34,8 @@ export async function POST(request: Request): Promise<any> {
     if (existingUserByEmail) {
       if (existingUserByEmail.isVerified) {
         return Response.json(
-          new ApiResponseHandler(400, {}, "User already exists with this mail")
+          new ApiResponseHandler(false, "User already exists with this mail", {}),
+          {status: 403}
         )
       } else {
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -44,7 +46,8 @@ export async function POST(request: Request): Promise<any> {
         await existingUserByEmail.save();
 
         return Response.json(
-          new ApiResponseHandler(200, {}, "User exist but not verified")
+          new ApiResponseHandler(true, "User exist but not verified", {}),
+          {status: 200}
         );
       }
     } else {
@@ -75,16 +78,16 @@ export async function POST(request: Request): Promise<any> {
     }*/
 
     return Response.json(
-      {
-        success: true,
-        message: "User created"
-      },
-      {status: 200}
+      new ApiResponseHandler(true, "User created", {}),
+      {status: 201}
     )
 
   } catch (error) {
-    Response.json(
-      new ApiResponseHandler(500, {}, `Error registering user ${error}`)
+    console.log("Error registering user ", error);
+
+    return  Response.json(
+      new ApiResponseHandler(false, `Error registering user`, {error}),
+      {status: 500}
     )
   }
 }

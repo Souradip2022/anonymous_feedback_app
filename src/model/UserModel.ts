@@ -1,6 +1,6 @@
 import mongoose, {Schema, Document, Model} from "mongoose";
 
-export interface Message extends Schema {
+export interface Message extends Document{
   content: string;
   createdAt: Date;
 }
@@ -38,7 +38,7 @@ export interface User extends Document {
   verifyCodeExpiry: Date;
   isVerified: boolean;
   isAcceptingMessage: boolean;
-  messages: Message[];
+  messages: Array<Message>;
 }
 
 const UserSchema: Schema<User> = new Schema({
