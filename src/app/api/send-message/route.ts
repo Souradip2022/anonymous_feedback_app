@@ -18,7 +18,10 @@ export async function POST(request: Request): Promise<Response> {
 
     if(!result.success){
       const error = result.error.format().content?._errors;
-
+      return Response.json(
+        new ApiResponseHandler(false, "Error parsing content", {error}),
+        {status: 400}
+      )
     }
 
     const user = await UserModel.findOne({username});
