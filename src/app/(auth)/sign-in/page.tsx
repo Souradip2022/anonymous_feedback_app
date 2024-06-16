@@ -31,6 +31,8 @@ function SignInForm() {
       password: data.password,
     });
 
+    console.log(data);
+
     if (result) {
       if (result.error === "CredentialsSignin") {
         toast({
@@ -54,18 +56,20 @@ function SignInForm() {
 
   return (
     <div className="border-2 w-full h-screen flex items-center justify-center bg-gray-800">
-      <div className="w-96 h-fit flex flex-col items-center justify-around p-7 bg-white text-black ">
-        <p className="text-4xl font-bold text-center">Welcome to Anonymous Feedback App</p>
+      <div className="w-[410px] h-fit flex flex-col items-center justify-around p-7 bg-white text-black rounded-md">
+        <p className="text-3xl font-bold text-center">Welcome to Anonymous Message App</p>
+        <p className="pt-3.5">Send message secretly</p>
         <Form {...form} >
-          <form onSubmit={form.handleSubmit(onSubmit)} className="bg-white text-black w-full py-3.5">
+          <form onSubmit={form.handleSubmit(onSubmit)}
+                className="bg-white flex flex-col gap-y-3 text-black w-full py-3.5">
             <FormField
               control={form.control}
-              name="identifier"
+              name="username"
               render={({field}) => (
                 <FormItem>
-                  <FormLabel>Username</FormLabel>
+                  <FormLabel>Username/Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="username" className="bg-gray-200" {...field} />
+                    <Input placeholder="username" className="bg-blue-50" {...field}/>
                   </FormControl>
                   <FormDescription>
                     This is your public display name.
@@ -77,20 +81,22 @@ function SignInForm() {
             <FormField
               control={form.control}
               name="password"
+
               render={({field}) => (
                 <FormItem>
-                  <FormLabel>Username</FormLabel>
+                  <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input placeholder="password" className="bg-gray-200" {...field} />
+                    <Input placeholder="password" type={"password"} className="bg-blue-50" {...field}/>
                   </FormControl>
                   <FormDescription>
-                    This is your public display name.
                   </FormDescription>
                   <FormMessage/>
                 </FormItem>
               )}
             />
-            <Button type="submit">Submit</Button>
+
+            <Button type="submit" className="bg-black text-white hover:bg-gray-700">Submit</Button>
+            <p className="w-full text-center">Not signed in yet? <span className="text-blue-800 hover:text-blue-600 cursor-default">Sign Up</span></p>
           </form>
         </Form>
       </div>

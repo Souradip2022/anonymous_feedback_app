@@ -16,13 +16,15 @@ export async function middleware(req: NextRequest) {
 
   // Redirect to dashboard if the user is already authenticated
   // and trying to access sign-in.tsx, sign-up, or home page
-  if (url.pathname.startsWith("/sign-in.tsx") ||
+/*
+  if (url.pathname.startsWith("/sign-in") ||
     url.pathname.startsWith("/sign-up") ||
     url.pathname.startsWith("/verify") ||
     url.pathname === "/"
   ) {
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }
+*/
 
 
   if (!token && url.pathname.startsWith("/dashboard")) {
