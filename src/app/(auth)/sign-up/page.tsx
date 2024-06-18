@@ -1,5 +1,5 @@
 "use client"
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {useRouter} from "next/navigation";
 import {zodResolver} from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -12,8 +12,39 @@ import {useToast} from "@/components/ui/use-toast";
 import axios, {Axios, AxiosError} from "axios";
 import {ApiResponse} from "@/types/ApiResponse";
 import {Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
+import { LuLoader2 } from "react-icons/lu";
 
 function Page() {
+  const [isCheckingUsername, setIsCheckingUsername] = useState<boolean>(false);
+  const [userMessage, setUserMessage] = useState<string>("");
+  const [username, setUsername] = useState<string>("");
+  const debounceUsername = useDebounceCallback(setUsername, 500);
+
+  useEffect(() => {
+    ;(async () => {
+      if(username){
+        setIsCheckingUsername(true);
+        setUserMessage("");
+        try {
+          const response = await axios.get<ApiResponse>(`api/check-username-unique/username=${username}`);
+
+          setUserMessage(response.data?.message);
+        } catch (error: any) {
+          const axiosError = error as AxiosError<ApiResponse>;
+          setUserMessage(axiosError.response?.data.message ?? "Error checking username");
+          form.setError("root", {
+            message: axiosError.response?.data.message ?? "Error checking username"
+          })
+        } finally {
+          setIsCheckingUsername(false);
+        }
+      }
+
+    })()
+
+
+  }, [username]);
+
   const {toast} = useToast();
   const router = useRouter();
   const form = useForm<z.infer<typeof signUpSchema>>({
@@ -63,10 +94,26 @@ function Page() {
                 <FormItem>
                   <FormLabel>Username</FormLabel>
                   <FormControl>
-                    <Input placeholder="username" className="bg-blue-50" {...field}/>
+                    <Input
+                      placeholder="username" className="bg-blue-50" {...field}
+                      onChange={(e) => {
+                        field.onChange(e);
+                        debounceUsername(e.target.value);
+                      }}/>
                   </FormControl>
                   <FormDescription>
-                    This is your public display name.
+                    {isCheckingUsername && <LuLoader2 size={"20"} className="animate-spin" />}
+                    {!isCheckingUsername && userMessage && (
+                      <p
+                        className={`text-sm ${
+                          userMessage === 'Username is unique'
+                            ? 'text-green-500'
+                            : 'text-red-500'
+                        }`}
+                      >
+                        {userMessage}
+                      </p>
+                    )}
                   </FormDescription>
                   <FormMessage/>
                 </FormItem>
@@ -107,8 +154,8 @@ function Page() {
             />
             <Button type="submit"
                     className="bg-black text-white hover:bg-gray-700"
-            disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? "Loading..." : "Submit"}
+                    disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting ? "Submitting..." : "Submit"}
             </Button>
             <p className="w-full text-center">Not signed in yet? <span
               className="text-blue-800 hover:text-blue-600 cursor-default">Sign Up</span></p>

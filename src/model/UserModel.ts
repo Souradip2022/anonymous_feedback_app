@@ -20,14 +20,16 @@ const MessageSchema: Schema<Message> = new Schema({
 const passwordValidator = {
   validator: function (value: string) {
     const hasUppercase = /[A-Z]/.test(value);
-
     const hasLowercase = /[a-z]/.test(value);
-
     const hasSpecialChar = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(value);
+    const minLength = 8; // Set your desired minimum length
 
-    return hasUppercase && hasLowercase && hasSpecialChar;
+    // Check minimum length and character class combination
+    return value.length >= minLength &&
+      (hasUppercase && hasLowercase) &&
+      hasSpecialChar;
   },
-  message: (props: any) => `${props.value} does not meet the password criteria`,
+  message: (props: any) => `${props.value} does not meet the password criteria. It must be at least 8 characters long and contain uppercase, lowercase, and special characters.`,
 };
 
 export interface User extends Document {
