@@ -9,12 +9,13 @@ import {Input} from "@/components/ui/input";
 import {useDebounceCallback} from 'usehooks-ts';
 import {Button} from "@/components/ui/button";
 import {useToast} from "@/components/ui/use-toast";
-import axios, {Axios, AxiosError} from "axios";
+import axios, {AxiosError} from "axios";
 import {ApiResponse} from "@/types/ApiResponse";
 import {Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
 import { LuLoader2 } from "react-icons/lu";
 
 function Page() {
+
   const [isCheckingUsername, setIsCheckingUsername] = useState<boolean>(false);
   const [userMessage, setUserMessage] = useState<string>("");
   const [username, setUsername] = useState<string>("");
@@ -26,7 +27,7 @@ function Page() {
         setIsCheckingUsername(true);
         setUserMessage("");
         try {
-          const response = await axios.get<ApiResponse>(`api/check-username-unique/username=${username}`);
+          const response = await axios.get<ApiResponse>(`api/check-username-unique?username=${username}`);
 
           setUserMessage(response.data?.message);
         } catch (error: any) {
@@ -39,9 +40,7 @@ function Page() {
           setIsCheckingUsername(false);
         }
       }
-
     })()
-
 
   }, [username]);
 
@@ -64,7 +63,9 @@ function Page() {
         title: "Success",
         description: response.data.message,
         variant: "default"
-      })
+      });
+
+      router.replace(`/verify-user/${username}`);
     } catch (error: any) {
       console.log("Error signing up", data);
       const axiosError = error as AxiosError<ApiResponse>;

@@ -5,7 +5,7 @@ import {usernameValidation} from "@/schema/signUpSchema";
 
 const UserQuerySchema = z.object({
   username: usernameValidation
-})
+});
 
 export async function GET(request: Request): Promise<any> {
   await dbConnect();

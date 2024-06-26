@@ -31,7 +31,7 @@ function SignInForm() {
       password: data.password,
     });
 
-    console.log(data);
+    // console.log(data);
 
     if (result) {
       if (result.error === "CredentialsSignin") {

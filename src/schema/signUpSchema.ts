@@ -16,6 +16,6 @@ export const signUpSchema: z.ZodObject<{}> = z.object({
   .min(6, {message: "Password must contain at least 6 characters"})
   .max(8, {message: "Password must not exceed 8 characters"})
   .regex(/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]+/, {message: "Password must contain at least 1 special character"})
-  .regex(/[A-Z]+/, {message: "Password must contain at least 1 special character"})
+  .regex(/[A-Z]+/, {message: "Password must contain at least 1 uppercase character"})
   .regex(/[a-z]+/, {message: "Password must contain at least 1 lowercase character"})
 })
