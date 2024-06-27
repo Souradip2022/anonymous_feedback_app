@@ -12,7 +12,7 @@ import {useToast} from "@/components/ui/use-toast";
 import axios, {AxiosError} from "axios";
 import {ApiResponse} from "@/types/ApiResponse";
 import {Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
-import { LuLoader2 } from "react-icons/lu";
+import {LuLoader2} from "react-icons/lu";
 
 function Page() {
 
@@ -23,7 +23,7 @@ function Page() {
 
   useEffect(() => {
     ;(async () => {
-      if(username){
+      if (username) {
         setIsCheckingUsername(true);
         setUserMessage("");
         try {
@@ -33,9 +33,7 @@ function Page() {
         } catch (error: any) {
           const axiosError = error as AxiosError<ApiResponse>;
           setUserMessage(axiosError.response?.data.message ?? "Error checking username");
-          form.setError("root", {
-            message: axiosError.response?.data.message ?? "Error checking username"
-          })
+
         } finally {
           setIsCheckingUsername(false);
         }
@@ -74,9 +72,6 @@ function Page() {
         description: axiosError.response?.data.message,
         variant: "destructive"
       })
-      form.setError("root", {
-        message: axiosError.response?.data.message
-      })
     }
   }
 
@@ -103,7 +98,7 @@ function Page() {
                       }}/>
                   </FormControl>
                   <FormDescription>
-                    {isCheckingUsername && <LuLoader2 size={"20"} className="animate-spin" />}
+                    {isCheckingUsername && <LuLoader2 size={"20"} className="animate-spin"/>}
                     {!isCheckingUsername && userMessage && (
                       <p
                         className={`text-sm ${

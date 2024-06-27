@@ -15,7 +15,7 @@ interface VerificationEmailProps {
   otp: string;
 }
 
-export default function VerificationEmailTemplate({username, otp}: VerificationEmailProps) {
+export default function Index({username, otp}: VerificationEmailProps) {
   return (
     <Html lang="en" dir="ltr">
       <Head>
@@ -50,14 +50,6 @@ export default function VerificationEmailTemplate({username, otp}: VerificationE
             If you did not request this code, please ignore this email.
           </Text>
         </Row>
-        {/* <Row>
-          <Button
-            href={`http://localhost:3000/verify/${username}`}
-            style={{ color: '#61dafb' }}
-          >
-            Verify here
-          </Button>
-        </Row> */}
       </Section>
     </Html>
   );

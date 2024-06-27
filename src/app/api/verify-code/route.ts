@@ -7,7 +7,7 @@ export async function POST(request: Request): Promise<Response> {
 
   try {
     const {username, code} = await request.json();
-
+    console.table([username, code])
     const codeReceived = {
       code
     }
