@@ -66,26 +66,29 @@ export async function POST(request: Request): Promise<Response> {
         messages: []
       });
 
+      const emailResponse = await sendVerificationEmail(email, username, verifyCode);
+      console.log(emailResponse);
+
+      if (!emailResponse.success) {
+        return Response.json(
+          new ApiResponseHandler(false, `${emailResponse.message}`, {}),
+          {status: 500}
+        )
+      }
+
+
       await newUser.save();
     }
-
-    /*const emailResponse = await sendVerificationEmail(email, username, verifyCode);
-
-    if (!emailResponse.success) {
-      return Response.json(
-        new ApiResponseHandler(500, {}, `Sending email failed ${emailResponse.message}`)
-      )
-    }*/
 
     return Response.json(
       new ApiResponseHandler(true, "User created", {}),
       {status: 201}
-    )
+    );
 
   } catch (error) {
     console.log("Error registering user ", error);
 
-    return  Response.json(
+    return Response.json(
       new ApiResponseHandler(false, `Error registering user`, {error}),
       {status: 500}
     )

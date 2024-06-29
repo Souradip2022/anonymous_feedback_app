@@ -11,7 +11,7 @@ const authOptions: NextAuthOptions = {
       id: 'credentials',
       name: 'Credentials',
       credentials: {
-        email: { label: 'Email', type: 'text' },
+        email: { label: 'Email or Username', type: 'text' },
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials: any): Promise<any> {
@@ -65,9 +65,12 @@ const authOptions: NextAuthOptions = {
     },
   },
   session: {
-    strategy: "jwt"
+    strategy: "jwt",
   },
   secret: process.env.NEXTAUTH_SRCRET,
+  pages: {
+    signIn: '/auth/sign-in', // Custom sign-in page
+  },
 
 };
 

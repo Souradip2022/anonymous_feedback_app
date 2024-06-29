@@ -12,6 +12,9 @@ export const config = {
 export async function middleware(req: NextRequest) {
 
   const token = await getToken({req});
+  if(token){
+    console.log("Payload: ", token)
+  }
   const url = req.nextUrl;
 
   // Redirect to dashboard if the user is already authenticated
@@ -19,7 +22,7 @@ export async function middleware(req: NextRequest) {
 /*
   if (url.pathname.startsWith("/sign-in") ||
     url.pathname.startsWith("/sign-up") ||
-    url.pathname.startsWith("/verify") ||
+    url.pathname.startsWith("/verify-user") ||
     url.pathname === "/"
   ) {
     return NextResponse.redirect(new URL("/dashboard", req.url));
