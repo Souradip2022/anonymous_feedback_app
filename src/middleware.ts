@@ -5,33 +5,26 @@ export {default} from "next-auth/middleware"
 
 // See "Matching Paths" below to learn more
 export const config = {
-  matcher: ["/sign-in", "/sign-up", "/",],
+  matcher: ["/sign-in", "/sign-up", "/", "/verify-user/:path*"],
 }
 
-// This function can be marked `async` if using `await` inside
-export async function middleware(req: NextRequest) {
+export async function middleware(request: NextRequest) {
 
-  const token = await getToken({req});
-  if(token){
-    console.log("Payload: ", token)
-  }
-  const url = req.nextUrl;
+  const token = await getToken({req: request, secret: process.env.AUTH_SECRET});
+  // console.log("Payload ", token);
+  const url = request.nextUrl;
 
-  // Redirect to dashboard if the user is already authenticated
-  // and trying to access sign-in.tsx, sign-up, or home page
-/*
-  if (url.pathname.startsWith("/sign-in") ||
+  if (token && (url.pathname.startsWith("/sign-in") ||
     url.pathname.startsWith("/sign-up") ||
     url.pathname.startsWith("/verify-user") ||
-    url.pathname === "/"
+    url.pathname === "/")
   ) {
-    return NextResponse.redirect(new URL("/dashboard", req.url));
-  }
-*/
 
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
 
   if (!token && url.pathname.startsWith("/dashboard")) {
-    return NextResponse.redirect(new URL("/sign-in", req.url))
+    return NextResponse.redirect(new URL("/sign-in", request.url))
   }
 
   return NextResponse.next();

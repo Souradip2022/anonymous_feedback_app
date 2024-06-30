@@ -17,6 +17,7 @@ const authOptions: NextAuthOptions = {
       async authorize(credentials: any): Promise<any> {
         await dbConnect();
         try {
+          // console.log(credentials);
           const user = await UserModel.findOne({
             $or: [
               { email: credentials.identifier },
@@ -47,31 +48,34 @@ const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({token, user}: { token: JWT; user: User }): Promise<JWT> {
       if (user) {
+
         token._id = user._id?.toString(); // Convert ObjectId to string
         token.isVerified = user.isVerified;
         token.isAcceptingMessages = user.isAcceptingMessages;
         token.username = user.username;
       }
+      // console.log("JWT callback called", { token, user });
       return token;
     },
     async session({session, token}: { session: Session; token: JWT }): Promise<Session> {
       if (token) {
+
         session.user._id = token._id;
         session.user.isVerified = token.isVerified;
         session.user.isAcceptingMessages = token.isAcceptingMessages;
         session.user.username = token.username;
       }
+      // console.log("Session callback called", { session, token });
       return session;
     },
   },
   session: {
     strategy: "jwt",
   },
-  secret: process.env.NEXTAUTH_SRCRET,
+  secret: process.env.AUTH_SECRET,
   pages: {
-    signIn: '/auth/sign-in', // Custom sign-in page
+    signIn: '/sign-in'
   },
-
 };
 
 export {authOptions};

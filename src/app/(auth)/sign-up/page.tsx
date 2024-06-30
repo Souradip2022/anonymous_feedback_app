@@ -19,7 +19,7 @@ function Page() {
   const [isCheckingUsername, setIsCheckingUsername] = useState<boolean>(false);
   const [userMessage, setUserMessage] = useState<string>("");
   const [username, setUsername] = useState<string>("");
-  const debounceUsername = useDebounceCallback(setUsername, 500);
+  const debounceUsername = useDebounceCallback(setUsername, 700);
 
   useEffect(() => {
     ;(async () => {
