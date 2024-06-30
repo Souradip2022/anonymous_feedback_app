@@ -46,7 +46,7 @@ export async function POST(request: Request): Promise<Response> {
         await existingUserByEmail.save();
 
         return Response.json(
-          new ApiResponseHandler(true, "User exist but not verified", {}),
+          new ApiResponseHandler(true, "User not verified", {}),
           {status: 200}
         );
       }
@@ -75,7 +75,6 @@ export async function POST(request: Request): Promise<Response> {
           {status: 500}
         )
       }
-
 
       await newUser.save();
     }

@@ -1,15 +1,16 @@
 "use client"
 import React from 'react';
-import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
-import { zodResolver } from "@hookform/resolvers/zod";
+import {useRouter} from "next/navigation";
+import {signIn} from "next-auth/react";
+import {zodResolver} from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { signInSchema } from "@/schema/signInSchema";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { toast } from "@/components/ui/use-toast";
+import {SubmitHandler, useForm} from "react-hook-form";
+import {Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
+import {signInSchema} from "@/schema/signInSchema";
+import {Input} from "@/components/ui/input";
+import {Button} from "@/components/ui/button";
+import {toast} from "@/components/ui/use-toast";
+import Link from "next/link";
 
 function SignInForm() {
   const router = useRouter();
@@ -49,11 +50,12 @@ function SignInForm() {
         <p className="text-3xl font-bold text-center">Welcome to Anonymous Message App</p>
         <p className="pt-3.5">Send message secretly</p>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="bg-white flex flex-col gap-y-3 text-black w-full py-3.5">
+          <form onSubmit={form.handleSubmit(onSubmit)}
+                className="bg-white flex flex-col gap-y-3 text-black w-full py-3.5">
             <FormField
               control={form.control}
               name="identifier"
-              render={({ field }) => (
+              render={({field}) => (
                 <FormItem>
                   <FormLabel>Email or Username</FormLabel>
                   <FormControl>
@@ -62,26 +64,30 @@ function SignInForm() {
                   <FormDescription>
                     This is your public display name.
                   </FormDescription>
-                  <FormMessage />
+                  <FormMessage/>
                 </FormItem>
               )}
             />
             <FormField
               control={form.control}
               name="password"
-              render={({ field }) => (
+              render={({field}) => (
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
                     <Input placeholder="Password" type="password" className="bg-blue-50" {...field} />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage/>
                 </FormItem>
               )}
             />
 
             <Button type="submit" className="bg-black text-white hover:bg-gray-700">Submit</Button>
-            <p className="w-full text-center">Not signed in yet? <span className="text-blue-800 hover:text-blue-600 cursor-pointer">Sign Up</span></p>
+            <p className="w-full text-center">Not signed in yet?
+              <Link href={"/sign-up"}>
+                <span className="text-blue-800 hover:text-blue-600 cursor-pointer"> Sign Up</span>
+              </Link>
+            </p>
           </form>
         </Form>
       </div>

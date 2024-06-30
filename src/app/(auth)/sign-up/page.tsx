@@ -13,6 +13,7 @@ import axios, {AxiosError} from "axios";
 import {ApiResponse} from "@/types/ApiResponse";
 import {Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
 import {LuLoader2} from "react-icons/lu";
+import Link from "next/link";
 
 function Page() {
 
@@ -20,6 +21,7 @@ function Page() {
   const [userMessage, setUserMessage] = useState<string>("");
   const [username, setUsername] = useState<string>("");
   const debounceUsername = useDebounceCallback(setUsername, 700);
+  const [confirmPassword, setConfirmPassword] = useState<string>("")
 
   useEffect(() => {
     ;(async () => {
@@ -55,18 +57,27 @@ function Page() {
 
   const onSubmit: SubmitHandler<z.infer<typeof signUpSchema>> = async (data: z.infer<typeof signUpSchema>) => {
     try {
-      const response = await axios.post<ApiResponse>("api/sign-up", data);
+      if(data.password !== confirmPassword){
+        form.setError("password", {
+          message: "Password does not match"
+        })
+      } else {
+        const response = await axios.post<ApiResponse>("api/sign-up", data);
 
-      toast({
-        title: "Success",
-        description: response.data.message,
-        variant: "default"
-      });
+        toast({
+          title: "Success",
+          description: response.data.message,
+          variant: "default"
+        });
 
-      router.replace(`/verify-user/${username}`);
+        router.replace(`/verify-user/${username}`);
+      }
     } catch (error: any) {
-      console.log("Error signing up", data);
       const axiosError = error as AxiosError<ApiResponse>;
+      console.log(axiosError.response?.data.message)
+      if (axiosError.response?.data.message === "Username already exists" || "User already exists with this mail") {
+        router.replace("/sign-in");
+      }
       toast({
         title: "Failed",
         description: axiosError.response?.data.message,
@@ -78,7 +89,7 @@ function Page() {
   return (
     <div className="border-2 w-full h-screen flex items-center justify-center bg-gray-800">
       <div className="w-[410px] h-fit flex flex-col items-center justify-around p-7 bg-white text-black rounded-md">
-        <p className="text-3xl font-bold text-center">Join Anonymous Message App</p>
+        <p className="text-3xl font-bold text-center">Join Mystery Message App</p>
         <p className="pt-3.5">Send message secretly</p>
         <Form {...form} >
           <form onSubmit={form.handleSubmit(onSubmit)}
@@ -135,7 +146,6 @@ function Page() {
             <FormField
               control={form.control}
               name="password"
-
               render={({field}) => (
                 <FormItem>
                   <FormLabel>Password</FormLabel>
@@ -148,13 +158,18 @@ function Page() {
                 </FormItem>
               )}
             />
+
+            <Input type={"password"} placeholder={"Confirm password"} className="bg-blue-50" onChange={(e) => setConfirmPassword(e.target.value)}></Input>
             <Button type="submit"
                     className="bg-black text-white hover:bg-gray-700"
                     disabled={form.formState.isSubmitting}>
               {form.formState.isSubmitting ? "Submitting..." : "Submit"}
             </Button>
-            <p className="w-full text-center">Not signed in yet? <span
-              className="text-blue-800 hover:text-blue-600 cursor-default">Sign Up</span></p>
+            <p className="w-full text-center">Already signed up?
+              <Link href={"/sign-in"}>
+                <span className="text-blue-800 hover:text-blue-600 cursor-default"> Sign In</span>
+              </Link>
+            </p>
           </form>
         </Form>
       </div>
