@@ -7,8 +7,8 @@ function Navbar() {
   const {data: User, status} = useSession();
   console.log(User, status)
   return (
-    <div className="w-full h-16 bg-gray-800 flex items-center justify-around gap-4 ">
-      <h1 className="text-xl font-semibold font-serif">Mystry message app</h1>
+    <div className="w-full h-16 bg-gray-900 flex items-center justify-around gap-4 absolute top-0">
+      <h1 className="text-xl font-semibold font-serif">Mystery message app</h1>
       {status === "authenticated" ?
         <>
           <p className="font-bold">Welcome! {User?.user.username}</p>
