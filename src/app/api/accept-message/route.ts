@@ -11,58 +11,60 @@ export async function POST(request: Request): Promise<Response> {
 
   try {
     const session = await getServerSession(authOptions);
-
     const user = session?.user as User;
     if (!session || !session.user) {
       return Response.json(
         new ApiResponseHandler(false, "Not authenticated", {}),
-        {status: 401}
-      )
+        { status: 401 }
+      );
     }
 
-    const {acceptingMessages} = await request.json();
+    const { acceptMessages } = await request.json(); // Make sure to destructure acceptMessages
 
-    const verifyAcceptMessageType = {
-      acceptingMessages
-    }
 
-    const result = AcceptMessageSchema.safeParse(verifyAcceptMessageType);
+    const result = AcceptMessageSchema.safeParse({ acceptMessages });
     if (!result.success) {
-      const error = result.error.format()?.acceptMessage?._errors;
-
-      return Response.json(new ApiResponseHandler(false, "There is an error", {error}),
-        {status: 400})
+      const error = result.error.format().acceptMessages?._errors;
+      return Response.json(
+        new ApiResponseHandler(false, "There is an error", { error }),
+        { status: 400 }
+      );
     }
 
-    const updatedUser = await UserModel.findByIdAndUpdate(user._id, {
-        isAcceptingMessage: acceptingMessages
+    const updatedUser = await UserModel.findByIdAndUpdate(
+      user._id,
+      {
+        isAcceptingMessage: acceptMessages,
       },
-      {new: true}
+      { new: true }
     );
 
     if (!updatedUser) {
-      Response.json(new ApiResponseHandler(false, "Unable to find and update user", {}),
-        {status: 404})
+      return Response.json(
+        new ApiResponseHandler(false, "Unable to find and update user", {}),
+        { status: 404 }
+      );
     }
 
     return Response.json(
-      new ApiResponseHandler(true, "Message accepting status updated successfully", {updatedUser}),
-      {status: 200})
+      new ApiResponseHandler(true, "Message accepting status updated successfully", { updatedUser }),
+      { status: 200 }
+    );
   } catch (error: any) {
-
     console.log("Failed to accept message ", error);
-    return Response.json(new ApiResponseHandler(false, "Error updating message status", {}),
-      {status: 500})
+    return Response.json(
+      new ApiResponseHandler(false, "Internal server error", {}),
+      { status: 500 }
+    );
   }
 }
-
 
 export async function GET(request: Request): Promise<Response> {
   await dbConnect();
 
   try {
     const session = await getServerSession(authOptions);
-
+    // console.log(session);
     const user = session?.user as User;
 
     if (!session || !session.user) {
@@ -84,7 +86,7 @@ export async function GET(request: Request): Promise<Response> {
   } catch (error: any) {
     console.log("Error retrieving message accepting status ", error);
 
-    return Response.json(new ApiResponseHandler(false, "Error retrieving message accepting status", {}),
+    return Response.json(new ApiResponseHandler(false, "Internal server error", {}),
       {status: 500})
   }
 }

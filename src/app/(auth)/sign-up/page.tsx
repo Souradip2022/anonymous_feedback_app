@@ -159,7 +159,7 @@ function Page() {
               )}
             />
 
-            <Input type={"password"} placeholder={"Confirm password"} className="bg-blue-50" onChange={(e) => setConfirmPassword(e.target.value)}></Input>
+            <Input type={"password"} placeholder={"Confirm password"} required={true} className="bg-blue-50" onChange={(e) => setConfirmPassword(e.target.value)}></Input>
             <Button type="submit"
                     className="bg-black text-white hover:bg-gray-700"
                     disabled={form.formState.isSubmitting}>

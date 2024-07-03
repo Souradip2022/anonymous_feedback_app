@@ -82,7 +82,8 @@ function SignInForm() {
               )}
             />
 
-            <Button type="submit" className="bg-black text-white hover:bg-gray-700">Submit</Button>
+            <Button type="submit"
+                    className="bg-black text-white hover:bg-gray-700" disabled={form.formState.isSubmitting}>{form.formState.isSubmitting ? "Submitting..." : "Submit"}</Button>
             <p className="w-full text-center">Not signed in yet?
               <Link href={"/sign-up"}>
                 <span className="text-blue-800 hover:text-blue-600 cursor-pointer"> Sign Up</span>
