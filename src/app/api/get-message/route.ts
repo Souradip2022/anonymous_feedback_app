@@ -22,29 +22,36 @@ export async function GET(request: Request): Promise<Response> {
   const userId = new mongoose.Types.ObjectId(_user._id);
 
   try {
-    const user = await UserModel.aggregate([
+    const user = await UserModel.findById({_id: userId});
+
+    if (!user) {
+      return Response.json(
+        new ApiResponseHandler(false, "User not found", {}),
+        {status: 400}
+      )
+    }
+
+    const userMessage = await UserModel.aggregate([
       {$match: {_id: userId}},
       {$unwind: '$messages'},
       {$sort: {'messages.createdAt': -1}},
       {$group: {_id: '$_id', messages: {$push: '$messages'}}},
     ]).exec();
 
-    if (!user || user.length === 0) {
-      return Response.json(
-        new ApiResponseHandler(false, "User not found", {}),
-        {status: 404}
-      )
+    console.log(userMessage.length)
+    if (!userMessage || userMessage.length === 0) {
+      return new Response(null, {status: 204});
     }
 
     return Response.json(
-      new ApiResponseHandler(true, "", {messages: user[0].messages}),
+      new ApiResponseHandler(true, "", {messages: userMessage[0].messages}),
       {status: 200}
     )
   } catch (error) {
-    console.log("An unexpected error occurred");
+    console.log("Internal server error");
 
     return Response.json(
-      new ApiResponseHandler(false, "An unexpected error occurred", {error}),
+      new ApiResponseHandler(false, "Internal server error", {error}),
       {status: 500}
     )
   }
