@@ -5,11 +5,11 @@ interface ApiResponseData {
 }
 
 export class ApiResponseHandler {
-  data: ApiResponseData | {};
+  data: ApiResponseData | any ;
   success: boolean;
   message: string;
 
-  constructor(success: boolean, message: string, data: ApiResponseData | {}) {
+  constructor(success: boolean, message: string, data: ApiResponseData | any) {
     this.success = success
     this.message = message;
     this.data = data;
