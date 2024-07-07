@@ -2,7 +2,7 @@
 import {Label} from "@/components/ui/label"
 import {Switch} from "@/components/ui/switch"
 import {useForm} from "react-hook-form";
-import {useCallback, useEffect, useMemo, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {AcceptMessageSchema} from "@/schema/acceptMessageSchema";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {Button} from "@/components/ui/button";
@@ -185,8 +185,9 @@ function Page() {
             const readableDate = formatDate(date);
 
             return (
-              <div key={message._id}
-                   className={"w-full h-fit p-5 border border-muted-foreground rounded-md shadow-md flex flex-col items-center justify-around gap-y-5 relative"}>
+              <div
+                key={message._id}
+                className={"w-full h-fit p-5 border border-muted-foreground rounded-md shadow-md flex flex-col items-center justify-around gap-y-5 relative"}>
                 <h2 className={"self-start"}>{readableDate}</h2>
                 <p className={"self-start"}>{message.content}</p>
                 <div className={"bg-red-600 p-2.5 rounded-md hover:bg-red-400 absolute top-3 right-3"}>
