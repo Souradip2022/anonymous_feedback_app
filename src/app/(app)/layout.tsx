@@ -8,8 +8,9 @@ export default function RootLayout({
 }>) {
 
   return (
-    <div className="w-full h-fit ">
+    <div className="w-full h-fit">
     <Navbar/>
       {children}
-    </div>)
+    </div>
+  )
 }

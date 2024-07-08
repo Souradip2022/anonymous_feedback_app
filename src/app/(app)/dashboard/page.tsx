@@ -10,7 +10,7 @@ import {Separator} from "@/components/ui/separator";
 import {useSession} from "next-auth/react";
 import {useToast} from "@/components/ui/use-toast";
 import {useRouter} from "next/navigation";
-import axios, {AxiosError} from "axios";
+import axios, {Axios, AxiosError} from "axios";
 import {ApiResponseHandler} from "@/utils/ApiResponseHandler";
 import {RiLoader3Fill} from "react-icons/ri";
 import {ImCross} from "react-icons/im";
@@ -129,44 +129,69 @@ function Page() {
     }
   }, [acceptMessages, setValue, toast, status]);
 
+  const deleteMessage = async (index: number) => {
+    try {
+
+      const response = await axios.post<ApiResponseHandler>(`/api/delete-message`, {
+        content: messages[index].content,
+        createdAt: messages[index].createdAt
+      })
+      if (response.status === 200) {
+        // await fetchMessage();
+        setMessages((prev) => prev.filter((item, i) => prev[index] !== item));
+      }
+
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError<ApiResponseHandler>;
+
+      toast({
+        variant: "destructive",
+        description: axiosError.response?.data.message
+      })
+    }
+  }
 
   return (
-    <div className="w-full h-fit bg-secondary-foreground flex flex-col items-center justify-center px-40">
-      <h1 className="text-4xl font-bold text-secondary self-start mt-24">User Dashboard</h1>
-      <h2 className={"text-xl font-semibold text-secondary self-start py-2.5"}>Your Username</h2>
-      <div className="w-full flex items-center justify-between ">
-        <p className={"text-secondary"}>{userUrl}</p>
-        <div className={""}>
-          <Button type={"button"} className="text-white h-9 mr-4" variant={"secondary"}
-                  onClick={() => router.replace(userUrl)}>Send message</Button>
-          <Button type={"button"} className="text-white h-9 w-24" variant={"secondary"}
-                  onClick={copyToClipboard}>Copy link</Button>
+    <div
+      className="w-full min-h-screen max-h-fit bg-secondary-foreground flex flex-col items-center pt-28">
+      <div className={"flex flex-col items-center justify-center  w-9/12"}>
+        <h1 className="text-4xl font-bold text-secondary self-start">User Dashboard</h1>
+        <h2 className={"text-xl font-semibold text-secondary self-start py-2.5"}>Your Username</h2>
+        <div className="w-full flex items-center justify-between ">
+          <p className={"text-secondary"}>{userUrl}</p>
+          <div className={""}>
+            <Button type={"button"} className="text-white h-9 w-24" variant={"secondary"}
+                    onClick={copyToClipboard}>
+              Copy link
+            </Button>
+          </div>
         </div>
-      </div>
-      <Separator className={"w-full  my-5"}/>
-      <div className="w-full flex items-center justify-between gap-3  ">
-        <div className="flex items-center gap-5">
-          <Switch id="airplane-mode"
-                  checked={acceptMessages}
-                  onCheckedChange={acceptMessagesHandler}
-                  {...register("acceptMessages")}
-                  disabled={isSwitchLoading}
-          />
-          <Label htmlFor="airplane-mode" className="text-secondary text-lg">
-            Accept message: {acceptMessages ? 'On' : 'Off'}
-          </Label>
+        <Separator className={"w-full  my-5"}/>
+        <div className="w-full flex items-center justify-between gap-3  ">
+          <div className="flex items-center gap-5">
+            <Switch id="airplane-mode"
+                    checked={acceptMessages}
+                    onCheckedChange={acceptMessagesHandler}
+                    {...register("acceptMessages")}
+                    disabled={isSwitchLoading}
+            />
+            <Label htmlFor="airplane-mode" className="text-secondary text-lg">
+              Accept message: {acceptMessages ? 'On' : 'Off'}
+            </Label>
+          </div>
         </div>
+        <button className="h-8 w-8 border border-muted-foreground self-start my-5 rounded-md grid place-items-center"
+                onClick={fetchMessage}>
+          <RiLoader3Fill color={"gray"} className={`w-[90%] h-[90%] ${isLoadingMessage && "animate-spin"}`}/>
+        </button>
       </div>
-      <button className="h-8 w-8 border border-muted-foreground self-start my-5 rounded-md grid place-items-center"
-              onClick={fetchMessage}>
-        <RiLoader3Fill color={"gray"} className={`w-[90%] h-[90%] ${isLoadingMessage && "animate-spin"}`}/>
-      </button>
+
 
       {messages.length === 0 ? (
         <div className="text-secondary my-5">No Message</div>
       ) : (
-        <div className="text-secondary my-5 grid grid-cols-2 gap-10 place-items-center">
-          {messages.map((message) => {
+        <div className="text-secondary my-5 grid grid-cols-2 gap-10 place-items-center w-9/12">
+          {messages.map((message, index) => {
             const isoString = `${message.createdAt}`;
             const date = new Date(isoString);
 
@@ -177,21 +202,20 @@ function Page() {
                 day: 'numeric',
                 hour: '2-digit',
                 minute: '2-digit',
-                second: '2-digit',
               };
               return date.toLocaleString(undefined, options);
             }
 
             const readableDate = formatDate(date);
-
             return (
               <div
                 key={message._id}
-                className={"w-full h-fit p-5 border border-muted-foreground rounded-md shadow-md flex flex-col items-center justify-around gap-y-5 relative"}>
+                className={"w-full h-fit p-5 border border-muted-foreground rounded-md shadow-md flex flex-col items-center justify-around gap-y-5 relative "}>
                 <h2 className={"self-start"}>{readableDate}</h2>
-                <p className={"self-start"}>{message.content}</p>
-                <div className={"bg-red-600 p-2.5 rounded-md hover:bg-red-400 absolute top-3 right-3"}>
-                  <ImCross color={"white"}/>
+                <p className={"self-start w-full break-words "}>{message.content}</p>
+                <div className={"bg-red-600 p-2.5 rounded-md hover:bg-red-400 absolute top-3 right-3 h-8 w-8"}
+                     onClick={() => deleteMessage(index)}>
+                  <ImCross color={"white"} className={"h-full w-full"}/>
                 </div>
               </div>)
           })}

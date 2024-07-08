@@ -20,12 +20,13 @@ const MessageSchema: Schema<Message> = new Schema({
 export interface User extends Document {
   username: string;
   email: string;
-  password: string;
-  verifyCode: string;
-  verifyCodeExpiry: Date;
+  password?: string; // Make password optional
+  verifyCode?: string; // Make verifyCode optional
+  verifyCodeExpiry?: Date; // Make verifyCodeExpiry optional
   isVerified: boolean;
   isAcceptingMessage: boolean;
   messages: Array<Message>;
+  provider: string; // Add provider field
 }
 
 const UserSchema: Schema<User> = new Schema({
@@ -44,15 +45,15 @@ const UserSchema: Schema<User> = new Schema({
   },
   password: {
     type: String,
-    required: [true, "Password is required"],
+    required: false,
   },
   verifyCode: {
     type: String,
-    required: [true, "Verify code is required"]
+    required: false
   },
   verifyCodeExpiry: {
     type: Date,
-    required: [true, "Verify code expiry is required"]
+    required: false
   },
   isVerified: {
     type: Boolean,
@@ -62,7 +63,13 @@ const UserSchema: Schema<User> = new Schema({
     type: Boolean,
     default: true,
   },
-  messages: [MessageSchema]
+  messages: [MessageSchema],
+  provider: {
+    type: String,
+    required: [true, "Provider is required"],
+    enum: ['credentials', 'google'],
+    default: 'credentials'
+  }
 });
 
 export const UserModel = (mongoose.models.User as mongoose.Model<User>) || mongoose.model<User>("User", UserSchema);

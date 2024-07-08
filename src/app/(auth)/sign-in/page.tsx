@@ -11,6 +11,8 @@ import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
 import {toast} from "@/components/ui/use-toast";
 import Link from "next/link";
+import Image from "next/image";
+import { FaGoogle } from "react-icons/fa";
 
 function SignInForm() {
   const router = useRouter();
@@ -83,14 +85,23 @@ function SignInForm() {
             />
 
             <Button type="submit"
-                    className="bg-black text-white hover:bg-gray-700" disabled={form.formState.isSubmitting}>{form.formState.isSubmitting ? "Submitting..." : "Submit"}</Button>
-            <p className="w-full text-center">Not signed in yet?
-              <Link href={"/sign-up"}>
-                <span className="text-blue-800 hover:text-blue-600 cursor-pointer"> Sign Up</span>
-              </Link>
-            </p>
+                    className="bg-black text-white hover:bg-gray-700"
+                    disabled={form.formState.isSubmitting}>{form.formState.isSubmitting ? "Submitting..." : "Submit"}</Button>
+
           </form>
         </Form>
+        <div className="w-full mt-4">
+          <Button
+            className="w-full bg-secondary-foreground text-muted hover:bg-gray-200">
+            Sign in with Google
+          <FaGoogle color={"blue"}/>
+          </Button>
+        </div>
+        <p className="w-full text-center pt-3">Not signed in yet?
+          <Link href={"/sign-up"}>
+            <span className="text-blue-800 hover:text-blue-600 cursor-pointer"> Sign Up</span>
+          </Link>
+        </p>
       </div>
     </div>
   );
