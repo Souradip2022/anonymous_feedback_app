@@ -1,5 +1,6 @@
-import {NextAuthOptions, Session, User} from "next-auth";
+import {Account, NextAuthOptions, Profile, Session, User} from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import {dbConnect} from "@/lib/dbConnect";
 import {UserModel} from "@/model/UserModel";
@@ -11,17 +12,16 @@ const authOptions: NextAuthOptions = {
       id: 'credentials',
       name: 'Credentials',
       credentials: {
-        email: { label: 'Email or Username', type: 'text' },
-        password: { label: 'Password', type: 'password' },
+        email: {label: 'Email or Username', type: 'text'},
+        password: {label: 'Password', type: 'password'},
       },
       async authorize(credentials: any): Promise<any> {
         await dbConnect();
         try {
-          // console.log(credentials);
           const user = await UserModel.findOne({
             $or: [
-              { email: credentials.identifier },
-              { username: credentials.identifier },
+              {email: credentials.identifier},
+              {username: credentials.identifier},
             ],
           });
           if (!user) {
@@ -30,6 +30,10 @@ const authOptions: NextAuthOptions = {
           if (!user.isVerified) {
             throw new Error('Please verify your account before logging in');
           }
+          if (!user.password) {
+            throw new Error('No password set for this account. Did you sign up with Google?');
+          }
+
           const isPasswordCorrect = await bcrypt.compare(
             credentials.password,
             user.password
@@ -44,28 +48,63 @@ const authOptions: NextAuthOptions = {
         }
       },
     }),
+
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
   ],
   callbacks: {
+    async signIn({user, account, profile}: {
+      user: User;
+      account: Account | null;
+      profile?: Profile;
+    }): Promise<boolean> {
+      if (account?.provider === "google") {
+        await dbConnect();
+        const existingUser = await UserModel.findOne({email: profile?.email});
+        if (!existingUser) {
+          const newUser = new UserModel({
+            username: profile?.name?.replace(/\s+/g, '').toLowerCase(),
+            email: profile?.email,
+            isVerified: true,
+            provider: 'google',
+          });
+          const updatedUser =  await newUser.save();
+
+          user.username = updatedUser.username;
+          user.email = updatedUser.email;
+          user.isVerified = updatedUser.isVerified;
+          user.provider = updatedUser.provider;
+          user.isAcceptingMessages = updatedUser.isAcceptingMessage;
+
+        } else if (existingUser.provider !== 'google') {
+
+          existingUser.provider = 'google';
+          await existingUser.save();
+        }
+      }
+      return true;
+    },
+
     async jwt({token, user}: { token: JWT; user: User }): Promise<JWT> {
       if (user) {
-
         token._id = user._id?.toString(); // Convert ObjectId to string
         token.isVerified = user.isVerified;
         token.isAcceptingMessages = user.isAcceptingMessages;
         token.username = user.username;
+        token.provider = user.provider;
       }
-      // console.log("JWT callback called", { token, user });
       return token;
     },
     async session({session, token}: { session: Session; token: JWT }): Promise<Session> {
       if (token) {
-
         session.user._id = token._id;
         session.user.isVerified = token.isVerified;
         session.user.isAcceptingMessages = token.isAcceptingMessages;
         session.user.username = token.username;
+        session.user.provider = token.provider;
       }
-      // console.log("Session callback called", { session, token });
       return session;
     },
   },
