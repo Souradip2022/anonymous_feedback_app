@@ -20,13 +20,13 @@ const MessageSchema: Schema<Message> = new Schema({
 export interface User extends Document {
   username: string;
   email: string;
-  password?: string; // Make password optional
-  verifyCode?: string; // Make verifyCode optional
-  verifyCodeExpiry?: Date; // Make verifyCodeExpiry optional
+  password?: string;
+  verifyCode?: string;
+  verifyCodeExpiry?: Date;
   isVerified: boolean;
   isAcceptingMessage: boolean;
   messages: Array<Message>;
-  provider: string; // Add provider field
+  provider: string;
 }
 
 const UserSchema: Schema<User> = new Schema({
@@ -45,15 +45,21 @@ const UserSchema: Schema<User> = new Schema({
   },
   password: {
     type: String,
-    required: false,
+    required: function() {
+  return this.provider !== 'google';
+},
   },
   verifyCode: {
     type: String,
-    required: false
+    required:function() {
+      return this.provider !== 'google';
+    },
   },
   verifyCodeExpiry: {
     type: Date,
-    required: false
+    required:function() {
+      return this.provider !== 'google';
+    },
   },
   isVerified: {
     type: Boolean,

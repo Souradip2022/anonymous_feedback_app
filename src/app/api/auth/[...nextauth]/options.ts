@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import {dbConnect} from "@/lib/dbConnect";
 import {UserModel} from "@/model/UserModel";
 import {JWT} from "next-auth/jwt";
+import {AdapterUser} from "next-auth/adapters";
 
 const authOptions: NextAuthOptions = {
   providers: [
@@ -50,38 +51,40 @@ const authOptions: NextAuthOptions = {
     }),
 
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      clientId: `${process.env.GOOGLE_CLIENT_ID}`,
+      clientSecret: `${process.env.GOOGLE_CLIENT_SECRET}`,
     }),
   ],
   callbacks: {
-    async signIn({user, account, profile}: {
-      user: User;
+    async signIn({user, account, profile}:{
+      user: User | AdapterUser;
       account: Account | null;
-      profile?: Profile;
+      profile?: Profile | undefined;
+      credentials?: Record<string, any> | undefined;
     }): Promise<boolean> {
       if (account?.provider === "google") {
         await dbConnect();
-        const existingUser = await UserModel.findOne({email: profile?.email});
-        if (!existingUser) {
-          const newUser = new UserModel({
-            username: profile?.name?.replace(/\s+/g, '').toLowerCase(),
-            email: profile?.email,
-            isVerified: true,
-            provider: 'google',
-          });
-          const updatedUser =  await newUser.save();
-
-          user.username = updatedUser.username;
-          user.email = updatedUser.email;
-          user.isVerified = updatedUser.isVerified;
-          user.provider = updatedUser.provider;
-          user.isAcceptingMessages = updatedUser.isAcceptingMessage;
-
-        } else if (existingUser.provider !== 'google') {
-
-          existingUser.provider = 'google';
-          await existingUser.save();
+        try {
+          let dbUser = await UserModel.findOne({email: profile?.email});
+          if (!dbUser) {
+            dbUser = await UserModel.create({
+              username: profile?.name?.replace(/\s+/g, '').toLowerCase(),
+              email: profile?.email,
+              isVerified: true,
+              provider: 'google',
+            });
+          } else if (dbUser.provider !== 'google') {
+            dbUser.provider = 'google';
+            await dbUser.save();
+          }
+          user._id = dbUser._id?.toString() as string;
+          user.username = dbUser.username;
+          user.isVerified = dbUser.isVerified;
+          user.provider = dbUser.provider;
+          user.isAcceptingMessages = dbUser.isAcceptingMessage;
+        } catch (error) {
+          console.error("Error in Google sign in:", error);
+          return false;
         }
       }
       return true;

@@ -19,7 +19,7 @@ export async function POST(request: Request): Promise<Response> {
       );
     }
 
-    const { acceptMessages } = await request.json(); // Make sure to destructure acceptMessages
+    const { acceptMessages } = await request.json();
 
 
     const result = AcceptMessageSchema.safeParse({ acceptMessages });

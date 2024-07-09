@@ -1,6 +1,6 @@
 "use client"
 import React from 'react';
-import {useRouter} from "next/navigation";
+import {redirect, useRouter} from "next/navigation";
 import {signIn} from "next-auth/react";
 import {zodResolver} from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -11,8 +11,7 @@ import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
 import {toast} from "@/components/ui/use-toast";
 import Link from "next/link";
-import Image from "next/image";
-import { FaGoogle } from "react-icons/fa";
+import {FaGoogle} from "react-icons/fa";
 
 function SignInForm() {
   const router = useRouter();
@@ -46,6 +45,19 @@ function SignInForm() {
     }
   }
 
+  const handleGoogleSignIn = async (): Promise<void> => {
+    const result = await signIn("google", {redirect: false});
+    if(result){
+      if(result.error){
+        toast({
+          title: "Login failed",
+          description: result.error,
+          variant: "destructive"
+        });
+      }
+    }
+
+  }
   return (
     <div className="border-2 w-full h-screen flex items-center justify-center bg-gray-800">
       <div className="w-[410px] h-fit flex flex-col items-center justify-around p-7 bg-white text-black rounded-md">
@@ -92,9 +104,12 @@ function SignInForm() {
         </Form>
         <div className="w-full mt-4">
           <Button
-            className="w-full bg-secondary-foreground text-muted hover:bg-gray-200">
-            Sign in with Google
-          <FaGoogle color={"blue"}/>
+            className="w-full bg-secondary-foreground text-muted hover:bg-gray-200 flex items-center justify-between px-10"
+            onClick={handleGoogleSignIn}>
+            <span className={""}>Sign in with Google</span>
+            <p className={""}>
+              <FaGoogle color={"gray"} size={20}/>
+            </p>
           </Button>
         </div>
         <p className="w-full text-center pt-3">Not signed in yet?
