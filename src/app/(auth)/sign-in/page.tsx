@@ -56,8 +56,8 @@ function SignInForm() {
         });
       }
     }
-
   }
+
   return (
     <div className="border-2 w-full h-screen flex items-center justify-center bg-gray-800">
       <div className="w-[410px] h-fit flex flex-col items-center justify-around p-7 bg-white text-black rounded-md">
@@ -104,11 +104,11 @@ function SignInForm() {
         </Form>
         <div className="w-full mt-4">
           <Button
-            className="w-full bg-secondary-foreground text-muted hover:bg-gray-200 flex items-center justify-between px-10"
+            className="w-full bg-secondary-foreground text-muted hover:bg-gray-200 flex items-center justify-between px-16"
             onClick={handleGoogleSignIn}>
             <span className={""}>Sign in with Google</span>
             <p className={""}>
-              <FaGoogle color={"gray"} size={20}/>
+              <FaGoogle color={"red"} size={20}/>
             </p>
           </Button>
         </div>

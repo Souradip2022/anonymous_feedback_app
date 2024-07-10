@@ -8,12 +8,14 @@ import {signUpSchema} from "@/schema/signUpSchema";
 import {Input} from "@/components/ui/input";
 import {useDebounceCallback} from 'usehooks-ts';
 import {Button} from "@/components/ui/button";
-import {useToast} from "@/components/ui/use-toast";
+import {toast, useToast} from "@/components/ui/use-toast";
 import axios, {AxiosError} from "axios";
 import {ApiResponse} from "@/types/ApiResponse";
 import {Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
 import {LuLoader2} from "react-icons/lu";
 import Link from "next/link";
+import {FaGoogle} from "react-icons/fa";
+import {signIn} from "next-auth/react";
 
 function Page() {
 
@@ -83,6 +85,19 @@ function Page() {
         description: axiosError.response?.data.message,
         variant: "destructive"
       })
+    }
+  }
+
+  const handleGoogleSignIn = async (): Promise<void> => {
+    const result = await signIn("google", {redirect: false});
+    if(result){
+      if(result.error){
+        toast({
+          title: "Login failed",
+          description: result.error,
+          variant: "destructive"
+        });
+      }
     }
   }
 
@@ -159,7 +174,8 @@ function Page() {
               )}
             />
 
-            <Input type={"password"} placeholder={"Confirm password"} required={true} className="bg-blue-50" onChange={(e) => setConfirmPassword(e.target.value)}></Input>
+            <Input type={"password"} placeholder={"Confirm password"} required={true} className="bg-blue-50"
+                   onChange={(e) => setConfirmPassword(e.target.value)}></Input>
             <Button type="submit"
                     className="bg-black text-white hover:bg-gray-700"
                     disabled={form.formState.isSubmitting}>
@@ -172,6 +188,17 @@ function Page() {
             </p>
           </form>
         </Form>
+
+        <div className="w-full mt-4">
+          <Button
+            className="w-full bg-secondary-foreground text-muted hover:bg-gray-200 flex items-center justify-between px-16"
+            onClick={handleGoogleSignIn}>
+            <span className={""}>Join with Google</span>
+            <p className={""}>
+              <FaGoogle color={"red"} size={20}/>
+            </p>
+          </Button>
+        </div>
       </div>
     </div>
   );

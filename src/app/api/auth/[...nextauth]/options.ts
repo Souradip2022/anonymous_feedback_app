@@ -56,7 +56,7 @@ const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async signIn({user, account, profile}:{
+    async signIn({user, account, profile}: {
       user: User | AdapterUser;
       account: Account | null;
       profile?: Profile | undefined;
@@ -65,10 +65,22 @@ const authOptions: NextAuthOptions = {
       if (account?.provider === "google") {
         await dbConnect();
         try {
+          let username = profile?.name?.toLowerCase() || '';
           let dbUser = await UserModel.findOne({email: profile?.email});
+
           if (!dbUser) {
+            let usernameExists = await UserModel.findOne({username});
+            let randomChars;
+
+            if (usernameExists) {
+              randomChars = Math.random().toString(36).substring(2, 6);
+              username = `${username.split(" ").join('')}${randomChars}`;
+            } else{
+              username = username.split(" ").join('');
+            }
+
             dbUser = await UserModel.create({
-              username: profile?.name?.replace(/\s+/g, '').toLowerCase(),
+              username,
               email: profile?.email,
               isVerified: true,
               provider: 'google',
@@ -77,6 +89,7 @@ const authOptions: NextAuthOptions = {
             dbUser.provider = 'google';
             await dbUser.save();
           }
+
           user._id = dbUser._id?.toString() as string;
           user.username = dbUser.username;
           user.isVerified = dbUser.isVerified;
@@ -92,7 +105,7 @@ const authOptions: NextAuthOptions = {
 
     async jwt({token, user}: { token: JWT; user: User }): Promise<JWT> {
       if (user) {
-        token._id = user._id?.toString(); // Convert ObjectId to string
+        token._id = user._id?.toString();
         token.isVerified = user.isVerified;
         token.isAcceptingMessages = user.isAcceptingMessages;
         token.username = user.username;
@@ -116,7 +129,7 @@ const authOptions: NextAuthOptions = {
   },
   secret: process.env.AUTH_SECRET,
   pages: {
-    signIn: '/sign-in'
+    signIn: '/sign-in',
   },
 };
 

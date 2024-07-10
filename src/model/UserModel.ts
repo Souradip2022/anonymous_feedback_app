@@ -46,8 +46,8 @@ const UserSchema: Schema<User> = new Schema({
   password: {
     type: String,
     required: function() {
-  return this.provider !== 'google';
-},
+      return this.provider !== 'google';
+    },
   },
   verifyCode: {
     type: String,
