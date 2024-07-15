@@ -11,6 +11,9 @@ importers:
       '@ai-sdk/google':
         specifier: ^0.0.20
         version: 0.0.20(zod@3.23.8)
+      '@ai-sdk/provider':
+        specifier: ^0.0.12
+        version: 0.0.12
       '@emoji-mart/data':
         specifier: ^1.2.1
         version: 1.2.1
@@ -48,7 +51,7 @@ importers:
         specifier: ^2.0.6
         version: 2.0.6
       ai:
-        specifier: ^3.1.30
+        specifier: ^3.1.36
         version: 3.1.36(react@18.3.1)(solid-js@1.8.17)(svelte@4.2.18)(vue@3.4.29(typescript@5.4.5))(zod@3.23.8)
       axios:
         specifier: ^1.7.2
@@ -179,6 +182,10 @@ packages:
 
   '@ai-sdk/provider@0.0.10':
     resolution: {integrity: sha512-NzkrtREQpHID1cTqY/C4CI30PVOaXWKYytDR2EcytmFgnP7Z6+CrGIA/YCnNhYAuUm6Nx+nGpRL/Hmyrv7NYzg==}
+    engines: {node: '>=18'}
+
+  '@ai-sdk/provider@0.0.12':
+    resolution: {integrity: sha512-oOwPQD8i2Ynpn22cur4sk26FW3mSy6t6/X/K1Ay2yGBKYiSpRyLfObhOrZEGsXDx+3euKy4nEZ193R36NM+tpQ==}
     engines: {node: '>=18'}
 
   '@ai-sdk/react@0.0.2':
@@ -4113,6 +4120,10 @@ snapshots:
       zod: 3.23.8
 
   '@ai-sdk/provider@0.0.10':
+    dependencies:
+      json-schema: 0.4.0
+
+  '@ai-sdk/provider@0.0.12':
     dependencies:
       json-schema: 0.4.0
 
