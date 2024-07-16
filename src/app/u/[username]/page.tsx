@@ -18,13 +18,12 @@ import {useRouter} from "next/navigation";
 import {FaLongArrowAltUp} from "react-icons/fa";
 import {BiSolidCheckbox} from "react-icons/bi";
 
-const promptSchema = z.object({
+/*const promptSchema = z.object({
   prompt: z.string().min(1, {message: "Prompt cannot be empty"})
-});
+});*/
 
 function Page({params}: { params: { username: string } }) {
   const router = useRouter();
-  const {messages, input, handleInputChange, handleSubmit: handleUserPrompt, stop} = useChat();
 
   const {toast} = useToast();
   const {
@@ -65,7 +64,9 @@ function Page({params}: { params: { username: string } }) {
     console.log(data.content);
   };
 
-  const {
+  const {messages, input, handleInputChange, handleSubmit: handleUserPromptSubmit, stop, isLoading} = useChat();
+
+  /*const {
     register: registerPrompt,
     handleSubmit: handleSubmitPrompt, formState: {isSubmitting: isSubmittingPrompt, errors: errorsPrompt}
   } = useForm<z.infer<typeof promptSchema>>({
@@ -77,11 +78,10 @@ function Page({params}: { params: { username: string } }) {
 
   const onSubmitPrompt: SubmitHandler<z.infer<typeof promptSchema>> = async (data: z.infer<typeof promptSchema>): Promise<void> => {
     console.log(data, input);
-
-  }
+  }*/
 
   return (
-    <div className="w-full h-screen bg-primary p-10">
+    <div className="w-full min-h-screen bg-primary p-10">
       <div className={"text-secondary flex flex-col items-center justify-center gap-10"}>
         <p className={"text-2xl font-bold "}>Public Profile Link</p>
         <form className={"w-2/3 h-fit grid place-items-center"} onSubmit={handleSubmit(onSubmit)}>
@@ -119,19 +119,23 @@ function Page({params}: { params: { username: string } }) {
             disabled={isSubmitting}>{isSubmitting ? "Submitting..." : "Submit"} </Button>
         </form>
         <div className={"w-2/3 border border-muted-foreground rounded-lg shadow-xl h-fit"}>
-          <form className={"w-full flex p-2 gap-3"} onSubmit={handleSubmitPrompt(onSubmitPrompt)}>
+          <form className={"w-full flex p-2 gap-3"} onSubmit={handleUserPromptSubmit}>
             <div className={"w-full h-fit"}>
-              <Input {...registerPrompt("prompt")} type={"text"}
-                     placeholder={"Enter your prompt to generate custom messages"}
-                     className={"border-none"} value={input} onChange={handleInputChange}/>
-              {errorsPrompt && <span className={"text-red-500 text-xs"}>{errorsPrompt.prompt?.message}</span>}
+              <Input
+                placeholder={"Enter your prompt to generate custom messages"}
+                className={"border-none"} value={input} onChange={handleInputChange}/>
             </div>
             <Button type={"submit"} variant={"secondary"}>
-              {isSubmittingPrompt ? <BiSolidCheckbox size={15}/>: <FaLongArrowAltUp size={15}/> }
+              {isLoading ? <BiSolidCheckbox size={15} onClick={() => stop()}/> : <FaLongArrowAltUp size={15}/>}
             </Button>
           </form>
-          <div className={"w-full border border-black h-36 p-2"}>
-
+          <div className={"w-full h-fit p-4"}>
+            {messages.map(m => (
+              <div key={m.id} className="whitespace-pre-wrap">
+                {m.role === 'user' ? 'User: ' : 'AI: '}
+                {m.content.split("**").join("  ").split("*").join(" ")}
+              </div>
+            ))}
           </div>
         </div>
         <div className="flex flex-col items-center gap-y-2">
