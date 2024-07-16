@@ -7,7 +7,7 @@ const google = createGoogleGenerativeAI({
 
 const model = google('models/gemini-1.5-pro-latest', {
   topK: 10,
-  safetySettings: [{category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_ONLY_HIGH"}],
+  safetySettings: [{category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE"}],
 });
 
 export const maxDuration = 30;
@@ -19,10 +19,10 @@ export async function POST(req: Request) {
     model: model as any,
     messages,
     temperature: 0.9,
-    maxTokens: 500,
+    maxTokens: 400,
     maxRetries: 5,
     frequencyPenalty: 0.3,
-    system: "You are a helpful assistant.",
+    system: "You are a helpful assistant. You generate anonymous messages that can be used to express gratitude, encouragement, apologies, confessions, and compliments. Ensure that the messages are thoughtful, kind, and empathetic.",
   });
 
   return result.toAIStreamResponse();

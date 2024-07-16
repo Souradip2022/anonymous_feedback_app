@@ -19,6 +19,18 @@ import {FaLongArrowAltUp} from "react-icons/fa";
 import {BiSolidCheckbox} from "react-icons/bi";
 
 
+const anonymousSuggestions = [
+  "Praise someone's kindness.",
+  "Encourage someone in tough times.",
+  "Apologize anonymously for a mistake.",
+  "Express gratitude for friendship.",
+  "Offer advice to someone feeling lost.",
+  "Confess an anonymous secret.",
+  "Cherish moments with friends.",
+  "Inspire others to spread kindness.",
+  "Thank someone for their support."
+];
+
 function Page({params}: { params: { username: string } }) {
   const router = useRouter();
 
@@ -61,7 +73,9 @@ function Page({params}: { params: { username: string } }) {
     console.log(data.content);
   };
 
-  const {messages, input, handleInputChange, handleSubmit: handleUserPromptSubmit, stop, isLoading} = useChat();
+  const {messages, input, handleInputChange, handleSubmit: handleUserPromptSubmit, stop, isLoading} = useChat({
+    initialInput: ""
+  });
   const [promptResult, setPromptResult] = useState<Array<any>>([]);
 
   useEffect(() => {
@@ -109,7 +123,7 @@ function Page({params}: { params: { username: string } }) {
             disabled={isSubmitting}>{isSubmitting ? "Submitting..." : "Submit"} </Button>
         </form>
         <div className={"w-full flex flex-col items-center gap-y-2 "}>
-          <span className={"text-black relative right-60 text-sm"}>You can generate custom anonymous messages as par your requirements</span>
+          <span className={"text-muted relative right-60 text-sm"}>You can generate custom anonymous messages as par your requirements</span>
           <div className={"w-2/3 border border-muted-foreground rounded-lg shadow-xl h-fit"}>
             <form className={"w-full flex p-2 gap-3"} onSubmit={handleUserPromptSubmit}>
               <div className={"w-full h-fit"}>
@@ -120,31 +134,42 @@ function Page({params}: { params: { username: string } }) {
 
               {isLoading ?
                 <Button type={"submit"} variant={"secondary"} onClick={() => stop()}>
-                  <BiSolidCheckbox size={15}/>
+                  <BiSolidCheckbox size={20}/>
                 </Button> :
                 <Button type={"submit"} variant={"secondary"}>
                   <FaLongArrowAltUp size={15}/>
                 </Button>
               }
             </form>
-            <div className={"w-full h-fit p-4"}>
-              {promptResult.map((m) => (
-                <Fragment key={m.id}>
-                  {m.role === "user" && <p>
-                    User:
-                    {m.content}
-                  </p>}
-                  {m.role === "assistant" && <p>
-                    Assistant:
-                    {m.content.split("**").join("  ").split("*").join(" ")}
-                  </p>}
-                </Fragment>
-              ))}
+            <div className={"w-full h-fit p-4 text-muted"}>
+              {promptResult.length > 0 ? (
+                promptResult.map((m) => (
+                  <Fragment key={m.id}>
+                    {m.role === "user" && (
+                      <p className={"mb-5 whitespace-pre-wrap"}>
+                        User: {m.content}
+                      </p>
+                    )}
+                    {m.role === "assistant" && (
+                      <p className={"flex flex-col"}>
+                        <span className={"mb-2"}>Assistant:</span>
+                        <span>{m.content.split("**").join("  ").split("*").join(" ")}</span>
+                      </p>
+                    )}
+                  </Fragment>
+                ))
+              ) : (
+                <div className={"w-full grid grid-cols-3 place-items-center gap-5"}>
+                  {anonymousSuggestions.map((prompt, index) => (
+                    <div key={index} className={"w-full h-full p-3 text-sm border rounded-lg  border-muted-foreground shadow hover:border-muted hover:shadow-md"}>{prompt}</div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
         <div className="flex flex-col items-center gap-y-2">
-          <p className={"text-black"}>Create your own account</p>
+          <p className={"text-muted"}>Create your own account</p>
           <Button type={"submit"} variant={"secondary"} onClick={() => router.push("/sign-up")}>
             Join now
           </Button>
