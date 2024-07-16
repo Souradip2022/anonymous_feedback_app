@@ -7,7 +7,7 @@ import {toast, useToast} from "@/components/ui/use-toast";
 import axios, {Axios, AxiosError} from "axios";
 import {Textarea} from "@/components/ui/textarea";
 import {Button} from "@/components/ui/button";
-import {useState} from "react";
+import {Fragment, useEffect, useState} from "react";
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data"
 import {ApiResponseHandler} from "@/utils/ApiResponseHandler";
@@ -18,9 +18,6 @@ import {useRouter} from "next/navigation";
 import {FaLongArrowAltUp} from "react-icons/fa";
 import {BiSolidCheckbox} from "react-icons/bi";
 
-/*const promptSchema = z.object({
-  prompt: z.string().min(1, {message: "Prompt cannot be empty"})
-});*/
 
 function Page({params}: { params: { username: string } }) {
   const router = useRouter();
@@ -65,20 +62,13 @@ function Page({params}: { params: { username: string } }) {
   };
 
   const {messages, input, handleInputChange, handleSubmit: handleUserPromptSubmit, stop, isLoading} = useChat();
+  const [promptResult, setPromptResult] = useState<Array<any>>([]);
 
-  /*const {
-    register: registerPrompt,
-    handleSubmit: handleSubmitPrompt, formState: {isSubmitting: isSubmittingPrompt, errors: errorsPrompt}
-  } = useForm<z.infer<typeof promptSchema>>({
-    resolver: zodResolver(promptSchema),
-    defaultValues: {
-      prompt: ""
-    }
-  });
-
-  const onSubmitPrompt: SubmitHandler<z.infer<typeof promptSchema>> = async (data: z.infer<typeof promptSchema>): Promise<void> => {
-    console.log(data, input);
-  }*/
+  useEffect(() => {
+    const filteredPrompt = messages.filter((m) => m.role === "assistant" || m.role === "user");
+    setPromptResult(filteredPrompt.slice(-2));
+    console.log(promptResult)
+  }, [messages]);
 
   return (
     <div className="w-full min-h-screen bg-primary p-10">
@@ -118,24 +108,39 @@ function Page({params}: { params: { username: string } }) {
             type={"submit"}
             disabled={isSubmitting}>{isSubmitting ? "Submitting..." : "Submit"} </Button>
         </form>
-        <div className={"w-2/3 border border-muted-foreground rounded-lg shadow-xl h-fit"}>
-          <form className={"w-full flex p-2 gap-3"} onSubmit={handleUserPromptSubmit}>
-            <div className={"w-full h-fit"}>
-              <Input
-                placeholder={"Enter your prompt to generate custom messages"}
-                className={"border-none"} value={input} onChange={handleInputChange}/>
-            </div>
-            <Button type={"submit"} variant={"secondary"}>
-              {isLoading ? <BiSolidCheckbox size={15} onClick={() => stop()}/> : <FaLongArrowAltUp size={15}/>}
-            </Button>
-          </form>
-          <div className={"w-full h-fit p-4"}>
-            {messages.map(m => (
-              <div key={m.id} className="whitespace-pre-wrap">
-                {m.role === 'user' ? 'User: ' : 'AI: '}
-                {m.content.split("**").join("  ").split("*").join(" ")}
+        <div className={"w-full flex flex-col items-center gap-y-2 "}>
+          <span className={"text-black relative right-60 text-sm"}>You can generate custom anonymous messages as par your requirements</span>
+          <div className={"w-2/3 border border-muted-foreground rounded-lg shadow-xl h-fit"}>
+            <form className={"w-full flex p-2 gap-3"} onSubmit={handleUserPromptSubmit}>
+              <div className={"w-full h-fit"}>
+                <Input
+                  placeholder={"Enter your prompt to generate custom messages"}
+                  className={"border-none"} value={input} onChange={handleInputChange}/>
               </div>
-            ))}
+
+              {isLoading ?
+                <Button type={"submit"} variant={"secondary"} onClick={() => stop()}>
+                  <BiSolidCheckbox size={15}/>
+                </Button> :
+                <Button type={"submit"} variant={"secondary"}>
+                  <FaLongArrowAltUp size={15}/>
+                </Button>
+              }
+            </form>
+            <div className={"w-full h-fit p-4"}>
+              {promptResult.map((m) => (
+                <Fragment key={m.id}>
+                  {m.role === "user" && <p>
+                    User:
+                    {m.content}
+                  </p>}
+                  {m.role === "assistant" && <p>
+                    Assistant:
+                    {m.content.split("**").join("  ").split("*").join(" ")}
+                  </p>}
+                </Fragment>
+              ))}
+            </div>
           </div>
         </div>
         <div className="flex flex-col items-center gap-y-2">

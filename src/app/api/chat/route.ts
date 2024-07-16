@@ -19,9 +19,9 @@ export async function POST(req: Request) {
     model: model as any,
     messages,
     temperature: 0.9,
-    maxTokens: 200,
+    maxTokens: 500,
     maxRetries: 5,
-    frequencyPenalty: 0.7,
+    frequencyPenalty: 0.3,
     system: "You are a helpful assistant.",
   });
 
