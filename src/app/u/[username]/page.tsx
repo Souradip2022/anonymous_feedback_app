@@ -3,7 +3,7 @@ import {MessageSchema} from "@/schema/MessageSchema";
 import {SubmitHandler, useForm} from "react-hook-form";
 import * as z from "zod";
 import {zodResolver} from "@hookform/resolvers/zod";
-import {toast, useToast} from "@/components/ui/use-toast";
+import {useToast} from "@/components/ui/use-toast";
 import axios, {Axios, AxiosError} from "axios";
 import {Textarea} from "@/components/ui/textarea";
 import {Button} from "@/components/ui/button";
@@ -17,6 +17,8 @@ import {Input} from "@/components/ui/input";
 import {useRouter} from "next/navigation";
 import {FaLongArrowAltUp} from "react-icons/fa";
 import {BiSolidCheckbox} from "react-icons/bi";
+import {IoReloadCircle} from "react-icons/io5";
+import {TbReload} from "react-icons/tb";
 
 
 const anonymousSuggestions = [
@@ -73,15 +75,30 @@ function Page({params}: { params: { username: string } }) {
     console.log(data.content);
   };
 
-  const {messages, input, handleInputChange, handleSubmit: handleUserPromptSubmit, stop, isLoading} = useChat({
-    initialInput: ""
-  });
   const [promptResult, setPromptResult] = useState<Array<any>>([]);
+  const [assistanceResponse, setAssistanceResponse] = useState<string>("")
+
+  const {
+    messages,
+    input,
+    handleInputChange,
+    handleSubmit: handleUserPromptSubmit,
+    stop,
+    isLoading,
+    setInput,
+    reload
+  } = useChat();
 
   useEffect(() => {
     const filteredPrompt = messages.filter((m) => m.role === "assistant" || m.role === "user");
     setPromptResult(filteredPrompt.slice(-2));
-    console.log(promptResult)
+
+    if (promptResult.length > 0) {
+      const prompt = promptResult.filter((m) => m.role === "assistant");
+      if (prompt.length > 0 && prompt[0].content) {
+        setAssistanceResponse(prompt[0].content);
+      }
+    }
   }, [messages]);
 
   return (
@@ -92,7 +109,7 @@ function Page({params}: { params: { username: string } }) {
           <p className={"place-self-start mb-1.5"}> Message {params.username} anonymously </p>
           <div className="w-full relative">
             <Textarea
-              className={"w-full min-h-32 border-muted-foreground resize-none shadow-lg"}
+              className={"w-full min-h-40 border-muted-foreground resize-none shadow-lg"}
               placeholder={"Enter your message"}
               {...register("content")}
               value={content}
@@ -133,22 +150,34 @@ function Page({params}: { params: { username: string } }) {
               </div>
 
               {isLoading ?
-                <Button type={"submit"} variant={"secondary"} onClick={() => stop()}>
+                <Button type={"submit"} variant={"secondary"} onClick={() => stop()} className={"p-2"}>
                   <BiSolidCheckbox size={20}/>
                 </Button> :
-                <Button type={"submit"} variant={"secondary"}>
-                  <FaLongArrowAltUp size={15}/>
+                <Button type={"submit"} variant={"secondary"} className={"p-2"}>
+                  <FaLongArrowAltUp size={20}/>
                 </Button>
               }
             </form>
-            <div className={"w-full h-fit p-4 text-muted"}>
+
+            <div className={"w-full h-fit p-4 text-muted relative"}>
               {promptResult.length > 0 ? (
                 promptResult.map((m) => (
-                  <Fragment key={m.id}>
+                  <div className={""} key={m.id}>
                     {m.role === "user" && (
-                      <p className={"mb-5 whitespace-pre-wrap"}>
-                        User: {m.content}
-                      </p>
+                      <div className={"w-full flex items-center mb-3 gap-x-1"}>
+                        <p className={"whitespace-pre-wrap w-11/12"}>
+                          User: {m.content}
+                        </p>
+                        <Button variant={"secondary"} type={"button"}
+                                onClick={() => setValue("content", assistanceResponse)}
+                                disabled={isLoading}>
+                          Use response
+                        </Button>
+                        <button className={"h-fit w-fit hover:bg-gray-200 p-1.5 rounded-md"}
+                                onClick={() => reload()}>
+                          <TbReload size={25} className={`${isLoading && "animate-spin"}`}/>
+                        </button>
+                      </div>
                     )}
                     {m.role === "assistant" && (
                       <p className={"flex flex-col"}>
@@ -156,18 +185,26 @@ function Page({params}: { params: { username: string } }) {
                         <span>{m.content.split("**").join("  ").split("*").join(" ")}</span>
                       </p>
                     )}
-                  </Fragment>
+                  </div>
                 ))
               ) : (
-                <div className={"w-full grid grid-cols-3 place-items-center gap-5"}>
+                <div className={"w-full grid grid-cols-3 place-items-center gap-3.5"}>
+                  <span className={"w-full col-span-3 text-xs text-center"}>Some suggestions</span>
                   {anonymousSuggestions.map((prompt, index) => (
-                    <div key={index} className={"w-full h-full p-3 text-sm border rounded-lg  border-muted-foreground shadow hover:border-muted hover:shadow-md"}>{prompt}</div>
+                    <div
+                      key={index}
+                      className={"w-full h-full p-3 text-sm border rounded-lg border-muted-foreground shadow hover:border-muted hover:shadow-md cursor-grab active:cursor-grabbing"}
+                      onClick={() => setInput(prompt)}
+                    >
+                      {prompt}
+                    </div>
                   ))}
                 </div>
               )}
             </div>
           </div>
         </div>
+
         <div className="flex flex-col items-center gap-y-2">
           <p className={"text-muted"}>Create your own account</p>
           <Button type={"submit"} variant={"secondary"} onClick={() => router.push("/sign-up")}>

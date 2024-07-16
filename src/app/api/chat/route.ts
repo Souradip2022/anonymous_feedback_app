@@ -19,10 +19,10 @@ export async function POST(req: Request) {
     model: model as any,
     messages,
     temperature: 0.9,
-    maxTokens: 400,
+    maxTokens: 200,
     maxRetries: 5,
     frequencyPenalty: 0.3,
-    system: "You are a helpful assistant. You generate anonymous messages that can be used to express gratitude, encouragement, apologies, confessions, and compliments. Ensure that the messages are thoughtful, kind, and empathetic.",
+    system: "You are a helpful assistant. You generate anonymous messages that can be used to express gratitude, encouragement, apologies, confessions, and compliments. Ensure that the messages are thoughtful, kind, and empathetic. Keep the range between 100 to 200 words",
   });
 
   return result.toAIStreamResponse();
