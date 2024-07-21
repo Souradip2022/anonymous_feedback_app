@@ -99,7 +99,7 @@ function Page({params}: { params: { username: string } }) {
         setAssistanceResponse(prompt[0].content);
       }
     }
-  }, [messages]);
+  }, [messages, promptResult]);
 
   return (
     <div className="w-full min-h-screen bg-primary p-10">

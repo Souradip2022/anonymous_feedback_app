@@ -10,10 +10,18 @@ import {Separator} from "@/components/ui/separator";
 import {useSession} from "next-auth/react";
 import {useToast} from "@/components/ui/use-toast";
 import {useRouter} from "next/navigation";
-import axios, {Axios, AxiosError} from "axios";
+import axios, {AxiosError} from "axios";
 import {ApiResponseHandler} from "@/utils/ApiResponseHandler";
 import {RiLoader3Fill} from "react-icons/ri";
 import {ImCross} from "react-icons/im";
+import {
+  Dialog, DialogClose,
+  DialogContent,
+  DialogDescription, DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 
 function Page() {
   const router = useRouter();
@@ -210,13 +218,41 @@ function Page() {
             return (
               <div
                 key={message._id}
-                className={"w-full h-fit p-5 border border-muted-foreground rounded-md shadow-md flex flex-col items-center justify-around gap-y-5 relative "}>
+                className={"w-full h-full p-5 border border-muted-foreground rounded-md shadow-md flex flex-col items-center justify-around gap-y-5 relative "}>
                 <h2 className={"self-start"}>{readableDate}</h2>
                 <p className={"self-start w-full break-words "}>{message.content}</p>
-                <div className={"bg-red-600 p-2.5 rounded-md hover:bg-red-400 absolute top-3 right-3 h-8 w-8"}
-                     onClick={() => deleteMessage(index)}>
-                  <ImCross color={"white"} className={"h-full w-full"}/>
-                </div>
+
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <button type={"button"}
+                            className={"bg-red-600 p-2.5 rounded-md hover:bg-red-400 absolute top-3 right-3 h-8 w-8"}
+                            /*onClick={() => deleteMessage(index)}*/>
+                      <ImCross color={"white"} className={"h-full w-full"}/>
+                    </button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-md bg-secondary-foreground">
+                    <DialogHeader>
+                      <DialogTitle className={"text-muted"}>Are you absolutely sure?</DialogTitle>
+                      <DialogDescription>
+                        This action cannot be undone. Are you sure you want to permanently
+                        delete this file from our servers?
+                      </DialogDescription>
+                    </DialogHeader>
+
+                    <DialogFooter className="sm:justify-start flex ">
+                      <DialogClose asChild>
+                        <Button type="button" variant="default" className={"hover:bg-gray-100"}>
+                          Close
+                        </Button>
+                      </DialogClose>
+                      <DialogClose asChild>
+                        <Button type="button" variant="destructive" onClick={() => deleteMessage(index)}>
+                          Delete
+                        </Button>
+                      </DialogClose>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </div>)
           })}
         </div>
