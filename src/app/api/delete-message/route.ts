@@ -19,7 +19,7 @@ export async function POST(req: Request): Promise<Response> {
   }
 
   const userId = new mongoose.Types.ObjectId(_user._id);
-  console.log(userId);
+  // console.log(userId);
 
   try {
     const {content, createdAt} = await req.json();

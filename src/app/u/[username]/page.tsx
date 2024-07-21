@@ -4,10 +4,10 @@ import {SubmitHandler, useForm} from "react-hook-form";
 import * as z from "zod";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {useToast} from "@/components/ui/use-toast";
-import axios, {Axios, AxiosError} from "axios";
+import axios, {AxiosError} from "axios";
 import {Textarea} from "@/components/ui/textarea";
 import {Button} from "@/components/ui/button";
-import {Fragment, useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data"
 import {ApiResponseHandler} from "@/utils/ApiResponseHandler";
@@ -17,7 +17,6 @@ import {Input} from "@/components/ui/input";
 import {useRouter} from "next/navigation";
 import {FaLongArrowAltUp} from "react-icons/fa";
 import {BiSolidCheckbox} from "react-icons/bi";
-import {IoReloadCircle} from "react-icons/io5";
 import {TbReload} from "react-icons/tb";
 
 
@@ -62,7 +61,6 @@ function Page({params}: { params: { username: string } }) {
       })
     } catch (error: any) {
       const axiosError = error as AxiosError<ApiResponseHandler>;
-      // console.log(axiosError);
       toast({
         variant: "destructive",
         description: axiosError.response?.data.message
@@ -72,7 +70,6 @@ function Page({params}: { params: { username: string } }) {
 
   const onSubmit: SubmitHandler<z.infer<typeof MessageSchema>> = async (data: z.infer<typeof MessageSchema>) => {
     await fetchAcceptingMessageStatus(params.username, data);
-    console.log(data.content);
   };
 
   const [promptResult, setPromptResult] = useState<Array<any>>([]);
@@ -99,7 +96,7 @@ function Page({params}: { params: { username: string } }) {
         setAssistanceResponse(prompt[0].content);
       }
     }
-  }, [messages, promptResult]);
+  }, [messages]);
 
   return (
     <div className="w-full min-h-screen bg-primary p-10">
@@ -123,7 +120,7 @@ function Page({params}: { params: { username: string } }) {
               <Image src={"/emoji_logo.png"} alt={"emoji"} width={15} height={15} className={"w-full h-full"}/>
             </Button>
             {showEmojiPicker && (
-              <div className="absolute top-[100%]">
+              <div className="absolute top-[100%] z-20">
                 <Picker data={data} theme={"light"}
                         onClickOutside={() => setShowEmojiPicker(false)}
                         onEmojiSelect={(e: any) => setValue("content", content + e.native)}
@@ -131,13 +128,14 @@ function Page({params}: { params: { username: string } }) {
               </div>
             )}
           </div>
-          <p
-            className={"self-start text-red-500 place-self-start text-sm mt-1.5"}>{errors && errors.content?.message}</p>
+          <p className={"self-start text-red-500 place-self-start text-sm mt-1.5"}>
+            {errors && errors.content?.message}
+          </p>
           <Button
             className={"my-3"}
             variant={"secondary"}
             type={"submit"}
-            disabled={isSubmitting}>{isSubmitting ? "Submitting..." : "Submit"} </Button>
+            disabled={isSubmitting}>{isSubmitting ? "Submitting..." : "Submit"}</Button>
         </form>
         <div className={"w-full flex flex-col items-center gap-y-2 "}>
           <span className={"text-muted relative right-60 text-sm"}>You can generate custom anonymous messages as par your requirements</span>
@@ -166,7 +164,7 @@ function Page({params}: { params: { username: string } }) {
                     {m.role === "user" && (
                       <div className={"w-full flex items-center mb-3 gap-x-1"}>
                         <p className={"whitespace-pre-wrap w-11/12"}>
-                          User: {m.content}
+                          You: {m.content}
                         </p>
                         <Button variant={"secondary"} type={"button"}
                                 onClick={() => setValue("content", assistanceResponse)}

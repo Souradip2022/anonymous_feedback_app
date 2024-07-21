@@ -13,7 +13,7 @@ export async function POST(request: Request): Promise<Response> {
     };
 
     const result = VerifyCodeSchema.safeParse(codeReceived);
-    console.log(result.error?.format());
+    // console.log(result.error?.format());
 
     if (!result.success) {
       const error = result.error.format().code?._errors;

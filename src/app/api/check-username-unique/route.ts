@@ -17,7 +17,7 @@ export async function GET(request: Request): Promise<Response> {
     }
 
     const result = UserQuerySchema.safeParse(queryParams);
-    console.log(result.error?.format());
+    // console.log(result.error?.format());
 
     if (!result.success) {
       const usernameErrors = result.error.format().username?._errors || [];

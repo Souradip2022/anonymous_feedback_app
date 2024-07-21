@@ -11,7 +11,7 @@ export async function GET(request: Request): Promise<Response> {
   const session = await getServerSession(authOptions);
 
   const _user = session?.user as User;
-  console.log(_user);
+  // console.log(_user);
 
   if (!session || !session.user) {
     return Response.json(
@@ -39,7 +39,7 @@ export async function GET(request: Request): Promise<Response> {
       {$group: {_id: '$_id', messages: {$push: '$messages'}}},
     ]).exec();
 
-    console.log(userMessage.length)
+    // console.log(userMessage.length)
     if (!userMessage || userMessage.length === 0) {
       return new Response(null, {status: 204});
     }

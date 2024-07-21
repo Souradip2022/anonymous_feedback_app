@@ -17,7 +17,7 @@ export async function POST(request: Request): Promise<Response> {
 
     if (!result.success) {
       const error = result.error.format().content?._errors;
-      console.log("Validation error:", error);
+      // console.log("Validation error:", error);
       return Response.json(
         new ApiResponseHandler(false, "Error parsing content", {error}),
         {status: 400}
@@ -27,7 +27,7 @@ export async function POST(request: Request): Promise<Response> {
     const user = await UserModel.findOne({username});
 
     if (!user) {
-      console.log("User not found:", username);
+      // console.log("User not found:", username);
       return Response.json(
         new ApiResponseHandler(false, "User not found", {}),
         {status: 404}
@@ -47,13 +47,13 @@ export async function POST(request: Request): Promise<Response> {
     user.messages.push(newMessage as Message);
     await user.save();
 
-    console.log("Message saved successfully:", newMessage);
+    // console.log("Message saved successfully:", newMessage);
     return Response.json(
       new ApiResponseHandler(true, "New message saved successfully", {newMessage}),
       {status: 200}
     );
   } catch (error: unknown) {
-    console.log("Unexpected error occurred:", error);
+    console.log("Internal server error:", error);
     return Response.json(
       new ApiResponseHandler(false, "Internal server error", {error}),
       {status: 500}

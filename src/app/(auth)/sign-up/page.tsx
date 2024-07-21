@@ -76,7 +76,7 @@ function Page() {
       }
     } catch (error: any) {
       const axiosError = error as AxiosError<ApiResponse>;
-      console.log(axiosError.response?.data.message)
+      // console.log(axiosError.response?.data.message)
       if (axiosError.response?.data.message === "Username already exists" || "User already exists with this mail") {
         router.replace("/sign-in");
       }
