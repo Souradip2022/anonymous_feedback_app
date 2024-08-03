@@ -187,18 +187,11 @@ function Page() {
       // console.log('US English voice not found');
     }
 
-    // Speak the utterance
+
     window.speechSynthesis.speak(utterance);
-    /*if (speechSynthesis.speaking) {
-      setIsSpeaking({
-        speaking: true,
-        index
-      });
-    }*/
-    // console.log('Utterance spoken:', utterance);
   }
 
-  function speakAudio(index: number) {
+  /*function speakAudio(index: number) {
     const text = messages[index].content;
     if (text && 'speechSynthesis' in window) {
       const utterance = new SpeechSynthesisUtterance();
@@ -213,7 +206,24 @@ function Page() {
         window.speechSynthesis.onvoiceschanged = () => setVoiceAndSpeak(utterance, index);
       }
     }
-  }
+  }*/
+
+  const speakAudio = useCallback((index: number) => {
+    const text = messages[index].content;
+    if (text && 'speechSynthesis' in window) {
+      const utterance = new SpeechSynthesisUtterance();
+      utterance.text = text;
+      utterance.lang = "en-US";
+
+      // If voices are already loaded, speak immediately
+      if (window.speechSynthesis.getVoices().length > 0) {
+        setVoiceAndSpeak(utterance, index);
+      } else {
+        // Otherwise, wait for the voices to be loaded
+        window.speechSynthesis.onvoiceschanged = () => setVoiceAndSpeak(utterance, index);
+      }
+    }
+  }, [messages])
 
   function abortAudio() {
     if ('speechSynthesis' in window) {
@@ -240,20 +250,19 @@ function Page() {
     if (isSpeaking.speaking === true && index !== null && index !== undefined) {
       // console.log(isSpeaking.index)
       speakAudio(index);
-      if(!isSpeaking.speaking && isSpeaking.index === null){
+      if (!isSpeaking.speaking && isSpeaking.index === null) {
         return;
       }
     } else if (index !== null && index !== undefined) {
       abortAudio();
 
-      if(!isSpeaking.speaking && isSpeaking.index === null){
+      if (!isSpeaking.speaking && isSpeaking.index === null) {
         return;
       }
     }
 
-    console.log(isSpeaking);
-  }, [isSpeaking]);
-
+    // console.log(isSpeaking);
+  }, [isSpeaking, speakAudio]);
 
 
   return (
@@ -321,10 +330,11 @@ function Page() {
                   <span className={"flex items-center gap-x-3.5"}>
                     {isSpeaking.speaking ?
                       <>
-                        <Button variant={"default"} className={"hover:bg-gray-100 px-1 py-0.5"} onClick={() => setIsSpeaking({
-                          speaking: false,
-                          index
-                        })}>
+                        <Button variant={"default"} className={"hover:bg-gray-100 px-1 py-0.5"}
+                                onClick={() => setIsSpeaking({
+                                  speaking: false,
+                                  index
+                                })}>
                           <HiOutlineSpeakerWave/>
                         </Button>
                         <Button variant={"default"} className={"hover:bg-gray-100 px-1 py-0.5"}
@@ -333,10 +343,11 @@ function Page() {
                         </Button>
                       </> :
                       <>
-                        <Button variant={"default"} className={"hover:bg-gray-100 px-1 py-0.5"} onClick={() => setIsSpeaking({
-                          speaking: true,
-                          index
-                        })}>
+                        <Button variant={"default"} className={"hover:bg-gray-100 px-1 py-0.5"}
+                                onClick={() => setIsSpeaking({
+                                  speaking: true,
+                                  index
+                                })}>
                           <HiMiniSpeakerXMark/>
                         </Button>
                       </>
