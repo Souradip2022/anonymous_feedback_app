@@ -25,7 +25,6 @@ import {HiMiniSpeakerXMark, HiOutlineSpeakerWave} from "react-icons/hi2";
 import {IoPauseOutline} from "react-icons/io5";
 import {FaPlay} from "react-icons/fa";
 
-
 function Page() {
   const {toast} = useToast();
   const {data: session, status} = useSession();
@@ -34,6 +33,7 @@ function Page() {
   const [isLoadingMessage, setIsLoadingMessage] = useState<boolean>(false);
   const [messages, setMessages] = useState<any[]>([]);
   // console.log(messages);
+  const [currSpeakingText, setCurrSpeakingText] = useState<string>("");
   const [isSpeaking, setIsSpeaking] = useState<any>({
     speaking: false,
     index: null
@@ -170,7 +170,9 @@ function Page() {
   function setVoiceAndSpeak(utterance: any, index: number) {
     const voices = window.speechSynthesis.getVoices();
     // console.log('Available voices:', voices);
+    // console.log(utterance);
 
+    setCurrSpeakingText(utterance.text);
     const usEnglishVoice = voices.find(voice => voice.lang === 'en-US' && voice.name === 'Google US English');
 
     utterance.onend = () => {
@@ -178,6 +180,7 @@ function Page() {
         speaking: false,
         index: null
       });
+      window.speechSynthesis.cancel();
     }
 
     if (usEnglishVoice) {
@@ -187,26 +190,13 @@ function Page() {
       // console.log('US English voice not found');
     }
 
-
-    window.speechSynthesis.speak(utterance);
-  }
-
-  /*function speakAudio(index: number) {
-    const text = messages[index].content;
-    if (text && 'speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance();
-      utterance.text = text;
-      utterance.lang = "en-US";
-
-      // If voices are already loaded, speak immediately
-      if (window.speechSynthesis.getVoices().length > 0) {
-        setVoiceAndSpeak(utterance, index);
-      } else {
-        // Otherwise, wait for the voices to be loaded
-        window.speechSynthesis.onvoiceschanged = () => setVoiceAndSpeak(utterance, index);
-      }
+    if (window.speechSynthesis.speaking && !pauseAudio) {
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utterance);
+    } else {
+      window.speechSynthesis.speak(utterance);
     }
-  }*/
+  }
 
   const speakAudio = useCallback((index: number) => {
     const text = messages[index].content;
@@ -223,7 +213,7 @@ function Page() {
         window.speechSynthesis.onvoiceschanged = () => setVoiceAndSpeak(utterance, index);
       }
     }
-  }, [messages])
+  }, [messages, pauseAudio]);
 
   function abortAudio() {
     if ('speechSynthesis' in window) {
@@ -238,11 +228,13 @@ function Page() {
   useEffect(() => {
     if ('speechSynthesis' in window) {
       if (pauseAudio) {
+
         window.speechSynthesis.pause();
       } else {
         window.speechSynthesis.resume();
       }
     }
+    // console.log(pauseAudio)
   }, [pauseAudio]);
 
   useEffect(() => {
@@ -260,10 +252,8 @@ function Page() {
         return;
       }
     }
-
     // console.log(isSpeaking);
-  }, [isSpeaking, speakAudio]);
-
+  }, [isSpeaking, speakAudio, abortAudio]);
 
   return (
     <div
@@ -328,7 +318,7 @@ function Page() {
                 <div className={"self-start flex align-middle justify-center gap-x-3.5"}>
                   <h2 className={"h-full grid place-items-center"}>{readableDate}</h2>
                   <span className={"flex items-center gap-x-3.5"}>
-                    {isSpeaking.speaking ?
+                    {isSpeaking.speaking && message.content === currSpeakingText ?
                       <>
                         <Button variant={"default"} className={"hover:bg-gray-100 px-1 py-0.5"}
                                 onClick={() => setIsSpeaking({
@@ -338,7 +328,10 @@ function Page() {
                           <HiOutlineSpeakerWave/>
                         </Button>
                         <Button variant={"default"} className={"hover:bg-gray-100 px-1 py-0.5"}
-                                onClick={() => setPauseAudio(prev => !prev)}>
+                                onClick={() => {
+                                  setPauseAudio(prev => !prev)
+                                  // console.log("Message spoken ", message);
+                                }}>
                           {pauseAudio ? <FaPlay/> : <IoPauseOutline/>}
                         </Button>
                       </> :
